@@ -28,7 +28,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(morgan("tiny"));
 app.use(cors());
-app.use(multer);
 app.use("/api/upload",uploadRouter);
 app.use("/email", emailRouter);
 app.use("/customer",customerRouter);

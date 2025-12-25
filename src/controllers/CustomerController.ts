@@ -13,13 +13,22 @@ export const loginCustomer = async (req: Request, res: Response) => {
         const token = generateToken(user);
         const refresh = refreshToken(user);
 
-        const saveUser = await Users.create({
-            firebaseUid: user.id,
-            name: user.name,
-            email: user.email,
-            profile: user.profile,
-            refreshToken: refresh
-        })
+
+        const updatedUser = await Users.findOneAndUpdate(
+            { firebaseUid: user.id }, // unique identifier
+            {
+                $set: {
+                    name: user.name,
+                    email: user.email,
+                    profile: user.profile,
+                    refreshToken: refresh,
+                },
+            },
+            {
+                new: true,   // return updated document
+                upsert: true // create if not exists
+            }
+        );
 
         res.cookie("refresh", refresh, {
             httpOnly: true,
