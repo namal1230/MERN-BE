@@ -15,11 +15,11 @@ export const loginCustomer = async (req: Request, res: Response) => {
 
 
         const updatedUser = await Users.findOneAndUpdate(
-            { firebaseUid: user.id }, // unique identifier
+            { email: user.email }, // unique identifier
             {
                 $set: {
+                    firebaseUid: user.id,
                     name: user.name,
-                    email: user.email,
                     profile: user.profile,
                     refreshToken: refresh,
                 },

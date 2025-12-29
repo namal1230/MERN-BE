@@ -35,6 +35,11 @@ const UserSchema = new mongoose_1.default.Schema({
         enum: ["user", "admin"],
         default: "user",
     },
+    status: {
+        type: String,
+        enum: ["VALID", "REJECTED", "Reported"],
+        default: "VALID",
+    },
 }, { timestamps: true });
 const Users = mongoose_1.default.model("User", UserSchema);
 exports.default = Users;

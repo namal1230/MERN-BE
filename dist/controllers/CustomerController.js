@@ -16,11 +16,11 @@ const loginCustomer = async (req, res) => {
         const user = req.body;
         const token = (0, GenerateToken_1.generateToken)(user);
         const refresh = (0, GenerateToken_1.refreshToken)(user);
-        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ firebaseUid: user.id }, // unique identifier
+        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ email: user.email }, // unique identifier
         {
             $set: {
+                firebaseUid: user.id,
                 name: user.name,
-                email: user.email,
                 profile: user.profile,
                 refreshToken: refresh,
             },

@@ -5,10 +5,14 @@ import morgan from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
 import customerRouter from "./routes/Customer";
+import phostsRouter from "./routes/Phosts";
 import emailRouter from "./routes/EmailRouter";
 import { error } from "node:console";
 import uploadRouter from "./routes/Upload";
 import multer from "multer";
+// import imageRoutes from "./routes/AI";
+import imageRoutes from "./routes/Unspalsh";
+import adminRouter from "./routes/Admin";
 
 dotenv.config();
 
@@ -31,8 +35,10 @@ app.use(cors());
 app.use("/api/upload",uploadRouter);
 app.use("/email", emailRouter);
 app.use("/customer",customerRouter);
-
-
+app.use("/admin",adminRouter);
+app.use("/phosts",phostsRouter);
+// app.use("/api", imageRoutes);
+app.use("/api/images", imageRoutes);
 
 app.listen(PORT,()=>{
     console.log(`Listening in port ${PORT}`)

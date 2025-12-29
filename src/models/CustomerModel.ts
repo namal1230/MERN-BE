@@ -7,6 +7,7 @@ export interface IUser extends mongoose.Document{
     profile?:string;
     refreshToken:string;
     role:"user" | "admin";
+    status:"VALID" | "REJECTED" | "Reported";
 }
 
 const UserSchema = new mongoose.Schema<IUser>({
@@ -39,6 +40,11 @@ const UserSchema = new mongoose.Schema<IUser>({
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    status: {
+      type: String,
+      enum: ["VALID", "REJECTED","Reported"],
+      default: "VALID",
     },
 },
  { timestamps: true }
