@@ -1,6 +1,6 @@
 import express from "express";
-import { savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
-
+import { getAllPublishedPhosts,savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
+import { downloadPostPDF } from "../controllers/PDFController";
 const phostsRouter = express.Router();
 
 phostsRouter.post("/save-phost",savePhost);
@@ -12,5 +12,7 @@ phostsRouter.get("/get-all-pending",getAllPendingPhosts)
 phostsRouter.get("/approve-phost",publishPhost)
 phostsRouter.get("/reject-phost",rejectPhost)
 phostsRouter.get("/get-all-report",getAllReportPhosts)
+phostsRouter.get("/published-phost",getAllPublishedPhosts)
+phostsRouter.get("/download-phost",downloadPostPDF)
 
 export default phostsRouter;

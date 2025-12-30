@@ -39,6 +39,7 @@ const PhostsSchema = new mongoose_1.default.Schema({
         type: String,
         enum: ["pending", "published", "archived"],
         default: "pending",
+        lowercase: true,
     },
 }, { timestamps: true });
 const Phosts = mongoose_1.default.model("Phosts", PhostsSchema);

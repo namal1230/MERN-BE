@@ -12,6 +12,8 @@ export interface IPhosts extends mongoose.Document{
     username:string;
     email:string;
     status:string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const BodyBlockSchema = new mongoose.Schema<IBodyBlock>(
@@ -55,6 +57,7 @@ const PhostsSchema = new mongoose.Schema<IPhosts>(
       type: String,
       enum: ["pending", "published", "archived"],
       default: "pending",
+      lowercase: true, 
     },
   },
   { timestamps: true }

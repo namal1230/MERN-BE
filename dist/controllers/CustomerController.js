@@ -12,32 +12,40 @@ const getCustomer = (req, res) => {
 exports.getCustomer = getCustomer;
 const loginCustomer = async (req, res) => {
     try {
-        console.log(req.body);
         const user = req.body;
+        if (!user?.id || !user?.email) {
+            return res.status(400).json({ message: "Invalid user data" });
+        }
         const token = (0, GenerateToken_1.generateToken)(user);
         const refresh = (0, GenerateToken_1.refreshToken)(user);
-        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ email: user.email }, // unique identifier
+        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ firebaseUid: user.id }, // ✅ real unique key
         {
             $set: {
                 firebaseUid: user.id,
                 name: user.name,
+                email: user.email,
                 profile: user.profile,
                 refreshToken: refresh,
             },
         }, {
-            new: true, // return updated document
-            upsert: true // create if not exists
+            new: true,
+            upsert: true,
+            setDefaultsOnInsert: true,
         });
         res.cookie("refresh", refresh, {
             httpOnly: true,
             secure: true,
-            sameSite: "strict"
+            sameSite: "strict",
         });
-        res.status(200).json({ data: "Customer login Success", token });
+        res.status(200).json({
+            message: "Customer login success",
+            token,
+            user: updatedUser,
+        });
     }
     catch (err) {
         console.error("Login failed:", err);
-        return res.status(500).json({
+        res.status(500).json({
             message: "Internal Server Error",
             error: err instanceof Error ? err.message : "Unknown error",
         });

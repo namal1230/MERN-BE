@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
+exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const email_service_1 = require("../services/email.service");
@@ -329,3 +329,53 @@ const getAllReportPhosts = async (req, res) => {
     }
 };
 exports.getAllReportPhosts = getAllReportPhosts;
+const getAllPublishedPhosts = async (req, res) => {
+    try {
+        const limit = Number(req.query.limit) || 10;
+        const lastId = req.query.lastId;
+        const userEmail = req.query.userEmail; // current user's email
+        const query = {
+            status: "published",
+        };
+        if (userEmail) {
+            query.email = { $ne: userEmail };
+        }
+        if (lastId) {
+            if (!mongoose_1.default.Types.ObjectId.isValid(lastId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid lastId",
+                });
+            }
+            query._id = { $lt: new mongoose_1.default.Types.ObjectId(lastId) };
+        }
+        const phosts = await PhostsModel_1.default.find(query)
+            .sort({ _id: -1 })
+            .limit(limit)
+            .select("title body createdAt"); // only needed fields
+        const data = phosts.map((p) => {
+            const firstImage = p.body.find((b) => b.type === "IMG" || b.type === "UNSPLASH");
+            return {
+                _id: p._id.toString(),
+                title: p.title,
+                createdAt: p.createdAt.toISOString(),
+                image: firstImage ? firstImage.value : null,
+            };
+        });
+        const lastPhost = phosts.at(-1);
+        res.status(200).json({
+            success: true,
+            count: data.length,
+            nextCursor: lastPhost ? lastPhost._id.toString() : null,
+            data,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching published phosts:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch published phosts",
+        });
+    }
+};
+exports.getAllPublishedPhosts = getAllPublishedPhosts;

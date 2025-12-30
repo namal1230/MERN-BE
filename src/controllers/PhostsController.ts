@@ -1,102 +1,110 @@
 import { Request, Response } from "express";
-import Phosts from "../models/PhostsModel";
+import Phosts, { IBodyBlock } from "../models/PhostsModel";
 import mongoose from "mongoose";
 import { sendLoginEmails } from "../services/email.service";
+
+export interface Draft {
+  _id: string;
+  title: string;
+  createdAt: string;
+  image?: string | null;
+}
+
 export const savePhost = async (req: Request, res: Response) => {
-  
-    try {
-        console.log(req.body);
-        const { title, body, code, name, email } = req.body;
 
-        if (!title || !Array.isArray(body) || !name || !email) {
-            return res.status(400).json({
-                message: "Required fields are missing"
-            });
-        }
+  try {
+    console.log(req.body);
+    const { title, body, code, name, email } = req.body;
 
-        const cleanedBody = body.filter(
-            (block: any) => block.value && block.value.trim() !== ""
-        );
-
-        const newPhost = await Phosts.create({
-            title,
-            body: cleanedBody,
-            code,
-            username: name,
-            email
-        });
-
-        if(typeof title !== "string") return;
-        const status:string = "phost-upload";
-        await sendLoginEmails({email,description:title,status})
-
-        res.status(200).json({ message: "Phosts saved Successfully", data: newPhost });
-
-    } catch (err) {
-        console.error("Phosts saved failed:", err);
-        return res.status(500).json({
-            message: "Internal Server Error",
-            error: err instanceof Error ? err.message : "Unknown error",
-        });
+    if (!title || !Array.isArray(body) || !name || !email) {
+      return res.status(400).json({
+        message: "Required fields are missing"
+      });
     }
+
+    const cleanedBody = body.filter(
+      (block: any) => block.value && block.value.trim() !== ""
+    );
+
+    const newPhost = await Phosts.create({
+      title,
+      body: cleanedBody,
+      code,
+      username: name,
+      email
+    });
+
+    if (typeof title !== "string") return;
+    const status: string = "phost-upload";
+    await sendLoginEmails({ email, description: title, status })
+
+    res.status(200).json({ message: "Phosts saved Successfully", data: newPhost });
+
+  } catch (err) {
+    console.error("Phosts saved failed:", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
 }
 
 export const getDraftPhosts = async (req: Request, res: Response) => {
-   console.log("request catched");
-    try {
-        const { name, email, status } = req.query;
-        console.log("request catched",name, email);
-        if (!name || !email || !status) {
-            return res.status(400).json({
-                message: "username and email and status are required"
-            });
-        }
-
-        const drafts = await Phosts.aggregate([
-            {
-                $match: {
-                    username:name,
-                    email,
-                    status
-                }
-            },
-
-            {
-                $addFields: {
-                    firstImage: {
-                        $first: {
-                            $filter: {
-                                input: "$body",
-                                as: "block",
-                                cond: {
-                                    $in: ["$$block.type", ["IMG", "UNSPLASH"]]
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-
-            {
-                $project: {
-                    title: 1,
-                    createdAt: 1,
-                    image: "$firstImage.value"
-                }
-            },
-
-            {
-                $sort: { createdAt: -1 }
-            }
-        ]);
-
-        res.status(200).json(drafts);
-    } catch (error) {
-        console.error("Failed to fetch draft phosts:", error);
-        res.status(500).json({
-            message: "Internal Server Error"
-        });
+  console.log("request catched");
+  try {
+    const { name, email, status } = req.query;
+    console.log("request catched", name, email);
+    if (!name || !email || !status) {
+      return res.status(400).json({
+        message: "username and email and status are required"
+      });
     }
+
+    const drafts = await Phosts.aggregate([
+      {
+        $match: {
+          username: name,
+          email,
+          status
+        }
+      },
+
+      {
+        $addFields: {
+          firstImage: {
+            $first: {
+              $filter: {
+                input: "$body",
+                as: "block",
+                cond: {
+                  $in: ["$$block.type", ["IMG", "UNSPLASH"]]
+                }
+              }
+            }
+          }
+        }
+      },
+
+      {
+        $project: {
+          title: 1,
+          createdAt: 1,
+          image: "$firstImage.value"
+        }
+      },
+
+      {
+        $sort: { createdAt: -1 }
+      }
+    ]);
+
+    res.status(200).json(drafts);
+  } catch (error) {
+    console.error("Failed to fetch draft phosts:", error);
+    res.status(500).json({
+      message: "Internal Server Error"
+    });
+  }
 }
 
 export const getDraftPhost = async (req: Request, res: Response) => {
@@ -213,7 +221,7 @@ export const editPhost = async (req: Request, res: Response) => {
           title,
           body,
           code,
-          username:name,
+          username: name,
           email
         }
       },
@@ -243,7 +251,7 @@ export const editPhost = async (req: Request, res: Response) => {
 };
 
 export const getAllPendingPhosts = async (req: Request, res: Response) => {
-    try {
+  try {
     const phosts = await Phosts.find({ status: "pending" })
       .sort({ createdAt: -1 }); // newest first
 
@@ -286,16 +294,16 @@ export const publishPhost = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Phost not found" });
     }
 
-    const status:string = "phost-published";
-    const email:string = phost.email;
-    const description:string = phost.title;
+    const status: string = "phost-published";
+    const email: string = phost.email;
+    const description: string = phost.title;
 
-    if(email && description) {
-       await sendLoginEmails({email,description,status})
+    if (email && description) {
+      await sendLoginEmails({ email, description, status })
     }
 
-        console.log(phost.email,phost.title);
-        
+    console.log(phost.email, phost.title);
+
     res.status(200).json({
       success: true,
       message: "Phost published successfully",
@@ -336,12 +344,12 @@ export const rejectPhost = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Phost not found" });
     }
 
-     const status:string = "phost-rejected";
-    const email:string = phost.email;
-    const description:string = phost.title;
+    const status: string = "phost-rejected";
+    const email: string = phost.email;
+    const description: string = phost.title;
 
-    if(email && description) {
-       await sendLoginEmails({email,description,status})
+    if (email && description) {
+      await sendLoginEmails({ email, description, status })
     }
 
     res.status(200).json({
@@ -359,7 +367,7 @@ export const rejectPhost = async (req: Request, res: Response) => {
 };
 
 export const getAllReportPhosts = async (req: Request, res: Response) => {
-    try {
+  try {
     const phosts = await Phosts.find({ status: "archived" })
       .sort({ createdAt: -1 }); // newest first
 
@@ -376,3 +384,63 @@ export const getAllReportPhosts = async (req: Request, res: Response) => {
     });
   }
 }
+
+export const getAllPublishedPhosts = async (req: Request, res: Response) => {
+  try {
+    const limit = Number(req.query.limit) || 10;
+    const lastId = req.query.lastId as string | undefined;
+    const userEmail = req.query.userEmail as string | undefined; // current user's email
+
+    const query: any = {
+      status: "published",
+    };
+
+    if (userEmail) {
+      query.email = { $ne: userEmail };
+    }
+
+    if (lastId) {
+      if (!mongoose.Types.ObjectId.isValid(lastId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid lastId",
+        });
+      }
+
+      query._id = { $lt: new mongoose.Types.ObjectId(lastId) };
+    }
+
+    const phosts = await Phosts.find(query)
+      .sort({ _id: -1 })
+      .limit(limit)
+      .select("title body createdAt"); // only needed fields
+
+    const data: Draft[] = phosts.map((p) => {
+      const firstImage = p.body.find(
+        (b: IBodyBlock) => b.type === "IMG" || b.type === "UNSPLASH"
+      );
+
+      return {
+        _id: p._id.toString(),
+        title: p.title,
+        createdAt: p.createdAt.toISOString(),
+        image: firstImage ? firstImage.value : null,
+      };
+    });
+
+    const lastPhost = phosts.at(-1);
+
+    res.status(200).json({
+      success: true,
+      count: data.length,
+      nextCursor: lastPhost ? lastPhost._id.toString() : null,
+      data,
+    });
+  } catch (error) {
+    console.error("Error fetching published phosts:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch published phosts",
+    });
+  }
+};
