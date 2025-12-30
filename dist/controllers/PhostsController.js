@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.editPhost = exports.deletePhost = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
+exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const email_service_1 = require("../services/email.service");
 const savePhost = async (req, res) => {
     try {
         console.log(req.body);
@@ -23,6 +24,10 @@ const savePhost = async (req, res) => {
             username: name,
             email
         });
+        if (typeof title !== "string")
+            return;
+        const status = "phost-upload";
+        await (0, email_service_1.sendLoginEmails)({ email, description: title, status });
         res.status(200).json({ message: "Phosts saved Successfully", data: newPhost });
     }
     catch (err) {
@@ -211,3 +216,116 @@ const editPhost = async (req, res) => {
     }
 };
 exports.editPhost = editPhost;
+const getAllPendingPhosts = async (req, res) => {
+    try {
+        const phosts = await PhostsModel_1.default.find({ status: "pending" })
+            .sort({ createdAt: -1 }); // newest first
+        res.status(200).json({
+            success: true,
+            count: phosts.length,
+            data: phosts
+        });
+    }
+    catch (error) {
+        console.error("Error fetching pending phosts:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch pending phosts"
+        });
+    }
+};
+exports.getAllPendingPhosts = getAllPendingPhosts;
+const publishPhost = async (req, res) => {
+    const { id } = req.query;
+    // 1️⃣ Validate presence & type
+    if (!id || typeof id !== "string") {
+        return res.status(400).json({ message: "Valid phost id is required" });
+    }
+    // 2️⃣ Validate ObjectId
+    if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid phost id" });
+    }
+    try {
+        // 3️⃣ Update status
+        const phost = await PhostsModel_1.default.findByIdAndUpdate(id, { status: "published" }, { new: true });
+        if (!phost) {
+            return res.status(404).json({ message: "Phost not found" });
+        }
+        const status = "phost-published";
+        const email = phost.email;
+        const description = phost.title;
+        if (email && description) {
+            await (0, email_service_1.sendLoginEmails)({ email, description, status });
+        }
+        console.log(phost.email, phost.title);
+        res.status(200).json({
+            success: true,
+            message: "Phost published successfully",
+            data: phost
+        });
+    }
+    catch (error) {
+        console.error("Publish error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to publish phost"
+        });
+    }
+};
+exports.publishPhost = publishPhost;
+const rejectPhost = async (req, res) => {
+    const { id } = req.query;
+    // 1️⃣ Validate presence & type
+    if (!id || typeof id !== "string") {
+        return res.status(400).json({ message: "Valid phost id is required" });
+    }
+    // 2️⃣ Validate ObjectId
+    if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid phost id" });
+    }
+    try {
+        // 3️⃣ Update status
+        const phost = await PhostsModel_1.default.findByIdAndUpdate(id, { status: "archived" }, { new: true });
+        if (!phost) {
+            return res.status(404).json({ message: "Phost not found" });
+        }
+        const status = "phost-rejected";
+        const email = phost.email;
+        const description = phost.title;
+        if (email && description) {
+            await (0, email_service_1.sendLoginEmails)({ email, description, status });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Phost rejected successfully",
+            data: phost
+        });
+    }
+    catch (error) {
+        console.error("Publish error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to publish phost"
+        });
+    }
+};
+exports.rejectPhost = rejectPhost;
+const getAllReportPhosts = async (req, res) => {
+    try {
+        const phosts = await PhostsModel_1.default.find({ status: "archived" })
+            .sort({ createdAt: -1 }); // newest first
+        res.status(200).json({
+            success: true,
+            count: phosts.length,
+            data: phosts
+        });
+    }
+    catch (error) {
+        console.error("Error fetching reported phosts:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch reported phosts"
+        });
+    }
+};
+exports.getAllReportPhosts = getAllReportPhosts;

@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import Phosts from "../models/PhostsModel";
 import mongoose from "mongoose";
-
+import { sendLoginEmails } from "../services/email.service";
 export const savePhost = async (req: Request, res: Response) => {
+  
     try {
         console.log(req.body);
         const { title, body, code, name, email } = req.body;
@@ -24,6 +25,10 @@ export const savePhost = async (req: Request, res: Response) => {
             username: name,
             email
         });
+
+        if(typeof title !== "string") return;
+        const status:string = "phost-upload";
+        await sendLoginEmails({email,description:title,status})
 
         res.status(200).json({ message: "Phosts saved Successfully", data: newPhost });
 
@@ -236,3 +241,138 @@ export const editPhost = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAllPendingPhosts = async (req: Request, res: Response) => {
+    try {
+    const phosts = await Phosts.find({ status: "pending" })
+      .sort({ createdAt: -1 }); // newest first
+
+    res.status(200).json({
+      success: true,
+      count: phosts.length,
+      data: phosts
+    });
+  } catch (error) {
+    console.error("Error fetching pending phosts:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch pending phosts"
+    });
+  }
+}
+
+export const publishPhost = async (req: Request, res: Response) => {
+  const { id } = req.query;
+
+  // 1️⃣ Validate presence & type
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ message: "Valid phost id is required" });
+  }
+
+  // 2️⃣ Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid phost id" });
+  }
+
+  try {
+    // 3️⃣ Update status
+    const phost = await Phosts.findByIdAndUpdate(
+      id,
+      { status: "published" },
+      { new: true }
+    );
+
+    if (!phost) {
+      return res.status(404).json({ message: "Phost not found" });
+    }
+
+    const status:string = "phost-published";
+    const email:string = phost.email;
+    const description:string = phost.title;
+
+    if(email && description) {
+       await sendLoginEmails({email,description,status})
+    }
+
+        console.log(phost.email,phost.title);
+        
+    res.status(200).json({
+      success: true,
+      message: "Phost published successfully",
+      data: phost
+    });
+
+  } catch (error) {
+    console.error("Publish error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to publish phost"
+    });
+  }
+};
+
+export const rejectPhost = async (req: Request, res: Response) => {
+  const { id } = req.query;
+
+  // 1️⃣ Validate presence & type
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ message: "Valid phost id is required" });
+  }
+
+  // 2️⃣ Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid phost id" });
+  }
+
+  try {
+    // 3️⃣ Update status
+    const phost = await Phosts.findByIdAndUpdate(
+      id,
+      { status: "archived" },
+      { new: true }
+    );
+
+    if (!phost) {
+      return res.status(404).json({ message: "Phost not found" });
+    }
+
+     const status:string = "phost-rejected";
+    const email:string = phost.email;
+    const description:string = phost.title;
+
+    if(email && description) {
+       await sendLoginEmails({email,description,status})
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Phost rejected successfully",
+      data: phost
+    });
+  } catch (error) {
+    console.error("Publish error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to publish phost"
+    });
+  }
+};
+
+export const getAllReportPhosts = async (req: Request, res: Response) => {
+    try {
+    const phosts = await Phosts.find({ status: "archived" })
+      .sort({ createdAt: -1 }); // newest first
+
+    res.status(200).json({
+      success: true,
+      count: phosts.length,
+      data: phosts
+    });
+  } catch (error) {
+    console.error("Error fetching reported phosts:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch reported phosts"
+    });
+  }
+}

@@ -10,45 +10,50 @@ export interface IUser extends mongoose.Document{
     status:"VALID" | "REJECTED" | "Reported";
 }
 
-const UserSchema = new mongoose.Schema<IUser>({
-    firebaseUid:{
-        type:"String",
-        unique:true,
-        require:true
+const UserSchema = new mongoose.Schema<IUser>(
+  {
+    firebaseUid: {
+      type: String,
+      required: true,
+      unique: true
     },
-    name:{
-        type:"String",
-        unique:true,
-        require:true
+
+    name: {
+      type: String,
+      required: true
     },
-    email:{
-        type:"String",
-        unique:true,
-        require:true
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true
     },
-    profile:{
-        type:"String",
-        unique:true,
-        require:true
+
+    profile: {
+      type: String
     },
-    refreshToken:{
-        type:"String",
-        unique:true,
-        require:true
+
+    refreshToken: {
+      type: String
     },
+
     role: {
       type: String,
       enum: ["user", "admin"],
-      default: "user",
+      default: "user"
     },
+
     status: {
       type: String,
-      enum: ["VALID", "REJECTED","Reported"],
-      default: "VALID",
-    },
-},
- { timestamps: true }
+      enum: ["VALID", "REJECTED", "Reported"],
+      default: "VALID"
+    }
+  },
+  { timestamps: true }
 );
+
 
 const Users = mongoose.model<IUser>("User",UserSchema)
 export default Users;

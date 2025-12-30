@@ -1,21 +1,42 @@
 import { Request, Response } from "express";
-import { sendMail } from "../utils/Mailer";
+import Email from "../models/EmailModel"; // adjust path if needed
+import { sendLoginEmails } from "../services/email.service";
 
-export const sendTestEmail = async (req: Request, res: Response) => {
-  const {description,email} = req.body;
-    try {
-    const info = await sendMail(
-      "dilmithqwe@gmail.com", 
-      "User Login Issue", 
-      `${description} from ${email}`
-    );
+export const sendLoginEmail = async (req: Request, res: Response) => {
+  const { description, email } = req.body;
 
+  if (!email || !description) {
+    return res.status(400).json({ message: "Email and description are required" });
+  }
+
+  try {
+
+    const status = "login-issue";
+    const emailSender = await sendLoginEmails({email,description,status});
     res.status(200).json({
       message: "Email sent successfully",
-      messageId: info.messageId,
+      data: emailSender
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to send email" });
+  }
+};
+
+export const getEmails = async (req: Request, res: Response) => {
+  const { status } = req.query;
+
+  if (!status || typeof status !== "string") {
+    return res.status(400).json({ message: "status query is required" });
+  }
+
+  try {
+    const emails = await Email.find({ source: status })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(emails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch emails" });
   }
 };

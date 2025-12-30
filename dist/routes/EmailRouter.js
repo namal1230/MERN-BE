@@ -6,5 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const EmailController_1 = require("../controllers/EmailController");
 const emailRouter = express_1.default.Router();
-emailRouter.post("/send", EmailController_1.sendTestEmail);
+emailRouter.post("/send", EmailController_1.sendLoginEmail);
+emailRouter.get("/get", EmailController_1.getEmails);
 exports.default = emailRouter;

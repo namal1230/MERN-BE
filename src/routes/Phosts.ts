@@ -1,5 +1,5 @@
 import express from "express";
-import { savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost } from "../controllers/PhostsController";
+import { savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
 
 const phostsRouter = express.Router();
 
@@ -8,5 +8,9 @@ phostsRouter.get("/draft-phost",getDraftPhosts);
 phostsRouter.get("/get-draft-phost",getDraftPhost)
 phostsRouter.delete("/delete-phost",deletePhost)
 phostsRouter.put("/edit-phost",editPhost)
+phostsRouter.get("/get-all-pending",getAllPendingPhosts)
+phostsRouter.get("/approve-phost",publishPhost)
+phostsRouter.get("/reject-phost",rejectPhost)
+phostsRouter.get("/get-all-report",getAllReportPhosts)
 
 export default phostsRouter;

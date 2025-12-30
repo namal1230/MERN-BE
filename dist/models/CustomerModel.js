@@ -6,40 +6,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const UserSchema = new mongoose_1.default.Schema({
     firebaseUid: {
-        type: "String",
-        unique: true,
-        require: true
+        type: String,
+        required: true,
+        unique: true
     },
     name: {
-        type: "String",
-        unique: true,
-        require: true
+        type: String,
+        required: true
     },
     email: {
-        type: "String",
+        type: String,
+        required: true,
         unique: true,
-        require: true
+        lowercase: true,
+        trim: true
     },
     profile: {
-        type: "String",
-        unique: true,
-        require: true
+        type: String
     },
     refreshToken: {
-        type: "String",
-        unique: true,
-        require: true
+        type: String
     },
     role: {
         type: String,
         enum: ["user", "admin"],
-        default: "user",
+        default: "user"
     },
     status: {
         type: String,
         enum: ["VALID", "REJECTED", "Reported"],
-        default: "VALID",
-    },
+        default: "VALID"
+    }
 }, { timestamps: true });
 const Users = mongoose_1.default.model("User", UserSchema);
 exports.default = Users;
