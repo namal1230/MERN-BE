@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Phosts, { IBodyBlock } from "../models/PhostsModel";
 import mongoose from "mongoose";
 import { sendLoginEmails } from "../services/email.service";
-
+import Reaction from "../models/ReactionModel";
 export interface Draft {
   _id: string;
   title: string;
@@ -389,14 +389,14 @@ export const getAllPublishedPhosts = async (req: Request, res: Response) => {
   try {
     const limit = Number(req.query.limit) || 10;
     const lastId = req.query.lastId as string | undefined;
-    const userEmail = req.query.userEmail as string | undefined; // current user's email
+    const userEmail = req.query.userEmail as string | undefined;
 
-    const query: any = {
+    const matchStage: any = {
       status: "published",
     };
 
     if (userEmail) {
-      query.email = { $ne: userEmail };
+      matchStage.email = { $ne: userEmail };
     }
 
     if (lastId) {
@@ -407,15 +407,67 @@ export const getAllPublishedPhosts = async (req: Request, res: Response) => {
         });
       }
 
-      query._id = { $lt: new mongoose.Types.ObjectId(lastId) };
+      matchStage._id = { $lt: new mongoose.Types.ObjectId(lastId) };
     }
 
-    const phosts = await Phosts.find(query)
-      .sort({ _id: -1 })
-      .limit(limit)
-      .select("title body createdAt"); // only needed fields
+    const phosts = await Phosts.aggregate([
+      { $match: matchStage },
+      { $sort: { _id: -1 } },
+      { $limit: limit },
 
-    const data: Draft[] = phosts.map((p) => {
+      // 🔹 Lookup reactions
+      {
+        $lookup: {
+          from: "phostreactions", // collection name (lowercase, plural)
+          localField: "_id",
+          foreignField: "phostId",
+          as: "reactions",
+        },
+      },
+
+      // 🔹 Calculate counts
+      {
+        $addFields: {
+          likeCount: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "r",
+                cond: { $eq: ["$$r.liked", true] },
+              },
+            },
+          },
+          commentCount: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "r",
+                cond: {
+                  $and: [
+                    { $ne: ["$$r.comment", ""] },
+                    { $ne: ["$$r.comment", null] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+
+      // 🔹 Return only needed fields
+      {
+        $project: {
+          title: 1,
+          body: 1,
+          createdAt: 1,
+          username: 1,
+          likeCount: 1,
+          commentCount: 1,
+        },
+      },
+    ]);
+
+    const data = phosts.map((p) => {
       const firstImage = p.body.find(
         (b: IBodyBlock) => b.type === "IMG" || b.type === "UNSPLASH"
       );
@@ -424,7 +476,10 @@ export const getAllPublishedPhosts = async (req: Request, res: Response) => {
         _id: p._id.toString(),
         title: p.title,
         createdAt: p.createdAt.toISOString(),
+        username: p.username,
         image: firstImage ? firstImage.value : null,
+        likeCount: p.likeCount,
+        commentCount: p.commentCount,
       };
     });
 
@@ -444,3 +499,219 @@ export const getAllPublishedPhosts = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const saveReaction = async (req: Request, res: Response) => {
+  try {
+    const phostId = req.query.id as string;
+    const { like, comment, username, profile } = req.body;
+
+    if (!phostId || !mongoose.Types.ObjectId.isValid(phostId)) {
+      return res.status(400).json({ message: "Invalid or missing phost ID" });
+    }
+
+    if (!username) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    if (typeof like !== "boolean") {
+      return res.status(400).json({ message: "'like' must be a boolean" });
+    }
+
+    const hasComment = comment && comment.trim().length > 0;
+
+    if (like === true && !hasComment) {
+      const alreadyLiked = await Reaction.findOne({
+        phostId,
+        username,
+        liked: true,
+      });
+
+      if (alreadyLiked) {
+        return res.status(409).json({
+          message: "User has already liked this post",
+        });
+      }
+    }
+
+    const reaction = await Reaction.create({
+      phostId,
+      liked: like,
+      comment: hasComment ? comment : "",
+      username,
+      profilePicture: profile,
+    });
+
+    return res.status(200).json({ success: true, reaction });
+  } catch (error: any) {
+    console.error("Error saving reaction:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+export const getReactionsStats = async (req: any, res: any) => {
+  try {
+    const phostId = req.query.id as string;
+    const userName = req.query.name;
+
+    if (!phostId || !mongoose.Types.ObjectId.isValid(phostId)) {
+      return res.status(400).json({ message: "Invalid or missing phost ID" });
+    }
+
+    const reactions = await Reaction.aggregate([
+      {
+        $facet: {
+          withComments: [
+            {
+              $match: {
+                phostId: new mongoose.Types.ObjectId(phostId),
+                comment: { $ne: "" }
+              }
+            },
+            { $sort: { createdAt: -1 } }
+          ],
+          likedCount: [
+            {
+              $match: {
+                phostId: new mongoose.Types.ObjectId(phostId),
+                liked: true
+              }
+            },
+            { $count: "totalLikes" }
+          ],
+          userLiked: [
+            {
+              $match: {
+                phostId: new mongoose.Types.ObjectId(phostId),
+                liked: true,
+                username: userName
+              }
+            },
+            { $limit: 1 }
+          ]
+        }
+      }
+    ]);
+
+    const totalLikes = reactions[0].likedCount[0]?.totalLikes || 0;
+    const isLikedByUser = reactions[0].userLiked.length > 0;
+
+    res.json({
+      comments: reactions[0].withComments,
+      totalLikes,
+      isLikedByUser
+    });
+
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const searchPhosts = async (req: Request, res: Response) => {
+  try {
+    const searchText = req.query.search as string | undefined;
+    const excludeEmail = req.query.excludeEmail as string | undefined;
+
+    const query: any = {};
+
+    if (searchText) {
+      query.$or = [
+        { title: { $regex: searchText, $options: "i" } },
+        { "body.value": { $regex: searchText, $options: "i" } },
+      ];
+    }
+
+    if (excludeEmail) {
+      query.email = { $ne: excludeEmail };
+    }
+
+    const phosts = await Phosts.find(query).sort({ createdAt: -1 });
+
+    // Map posts and count reactions
+    const mapped = await Promise.all(
+      phosts.map(async (p) => {
+        const firstImage = p.body.find((b) => b.type === "IMG");
+
+        // Count likes and comments
+        const likeCount = await Reaction.countDocuments({
+          phostId: p._id,
+          liked: true,
+        });
+
+        const commentCount = await Reaction.countDocuments({
+          phostId: p._id,
+          comment: { $exists: true, $ne: "" },
+        });
+
+        return {
+          _id: p._id.toString(),
+          title: p.title,
+          createdAt: p.createdAt.toISOString(),
+          username: p.username,
+          image: firstImage ? firstImage.value : null,
+          likeCount,
+          commentCount,
+        };
+      })
+    );
+
+    res.status(200).json(mapped);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getUserReactions = async (req: Request, res: Response) => {
+   try {
+    const { username } = req.query;
+
+    if (!username || typeof username !== "string") {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    const userPhosts = await Phosts.find({ username }).select("_id title");
+
+    if (!userPhosts.length) {
+      return res.status(404).json({ message: "No posts found for this user" });
+    }
+
+    const phostIds = userPhosts.map((p) => p._id);
+
+    const reactions = await Reaction.find({ phostId: { $in: phostIds } });
+
+    const result = userPhosts.map((post) => {
+      const postReactions = reactions.filter(
+        (r) => r.phostId.toString() === post._id.toString()
+      );
+
+      const totalLikes = postReactions.filter((r) => r.liked).length;
+      const totalComments = postReactions.filter((r) => r.comment).length;
+
+      return {
+        phostId: post._id,
+        title: post.title,
+        totalReactions: postReactions.length,
+        totalLikes,
+        totalComments,
+        reactions: postReactions.map((r) => ({
+          username: r.username,
+          profilePicture: r.profilePicture,
+          liked: r.liked,
+          comment: r.comment,
+          createdAt: r.createdAt,
+        })),
+      };
+    });
+
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error", error: err });
+  }
+}

@@ -53,5 +53,5 @@ const EmailSchema = new mongoose.Schema<IEmail>(
   }
 );
 
-export default mongoose.model<IEmail>("Email", EmailSchema);
-
+const Email = mongoose.model<IEmail>("Email", EmailSchema);
+export default Email;

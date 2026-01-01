@@ -38,4 +38,5 @@ const EmailSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true // auto adds createdAt & updatedAt
 });
-exports.default = mongoose_1.default.model("Email", EmailSchema);
+const Email = mongoose_1.default.model("Email", EmailSchema);
+exports.default = Email;
