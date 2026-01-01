@@ -24,4 +24,5 @@ phostsRouter.post("/save-reaction", PhostsController_1.saveReaction);
 phostsRouter.post("/get-reaction", PhostsController_1.getReactionsStats);
 phostsRouter.post("/find-phost", PhostsController_1.searchPhosts);
 phostsRouter.get("/get-notification", PhostsController_1.getUserReactions);
+phostsRouter.get("/set-notification", PhostsController_1.setNotificationStatus);
 exports.default = phostsRouter;

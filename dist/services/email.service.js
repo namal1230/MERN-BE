@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLoginEmails = void 0;
+exports.sendReactionEmails = exports.sendLoginEmails = void 0;
 const Mailer_1 = require("../utils/Mailer");
 const EmailModel_1 = __importDefault(require("../models/EmailModel")); // adjust path if needed
 const CustomerModel_1 = __importDefault(require("../models/CustomerModel"));
+const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 // export const handleLoginIssueEmail = async ({
 //   email,
 //   description
@@ -44,3 +45,23 @@ const sendLoginEmails = async ({ email, description, status }) => {
     }
 };
 exports.sendLoginEmails = sendLoginEmails;
+const sendReactionEmails = async ({ phostId, reactedBy, reactionType, comment, }) => {
+    const phost = await PhostsModel_1.default.findById(phostId).select("title email username");
+    if (!phost)
+        return null;
+    if (phost.username === reactedBy)
+        return null;
+    let subject = "";
+    let message = "";
+    if (reactionType === "like") {
+        subject = "Your Phost got a Like";
+        message = `${reactedBy} liked your post.\n\n Post Title: ${phost.title} \n\nFrom: Smart Blog Phost`;
+    }
+    if (reactionType === "comment") {
+        subject = "New Comment on Your Phost";
+        message = `${reactedBy} commented on your post.\n\nPost Title: ${phost.title}\n\nComment:${comment}\n\nFrom: Smart Blog Phost`;
+    }
+    await (0, Mailer_1.sendMail)(phost.email, subject, message);
+    return true;
+};
+exports.sendReactionEmails = sendReactionEmails;

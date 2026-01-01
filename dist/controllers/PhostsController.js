@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserReactions = exports.searchPhosts = exports.getReactionsStats = exports.saveReaction = exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
+exports.setNotificationStatus = exports.getUserReactions = exports.searchPhosts = exports.getReactionsStats = exports.saveReaction = exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const email_service_1 = require("../services/email.service");
@@ -102,7 +102,6 @@ const getDraftPhost = async (req, res) => {
                 message: "phost id is required"
             });
         }
-        // validate ObjectId
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "invalid phost id"
@@ -134,7 +133,6 @@ const deletePhost = async (req, res) => {
                 message: "phost id is required"
             });
         }
-        // Validate ObjectId
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "invalid phost id"
@@ -142,7 +140,7 @@ const deletePhost = async (req, res) => {
         }
         const deletedPhost = await PhostsModel_1.default.findOneAndDelete({
             _id: id,
-            status: "pending" // only allow deleting drafts
+            status: "pending"
         });
         if (!deletedPhost) {
             return res.status(404).json({
@@ -166,7 +164,6 @@ const editPhost = async (req, res) => {
     try {
         const { id } = req.query;
         const { title, body, code, name, email } = req.body;
-        // 1️⃣ Validate id
         if (!id || typeof id !== "string") {
             return res.status(400).json({
                 message: "phost id is required"
@@ -177,16 +174,14 @@ const editPhost = async (req, res) => {
                 message: "invalid phost id"
             });
         }
-        // 2️⃣ Basic validation
         if (!title || !Array.isArray(body)) {
             return res.status(400).json({
                 message: "title and body are required"
             });
         }
-        // 3️⃣ Update draft phost
         const updatedPhost = await PhostsModel_1.default.findOneAndUpdate({
             _id: id,
-            status: "pending" // only editable drafts
+            status: "pending"
         }, {
             $set: {
                 title,
@@ -196,8 +191,8 @@ const editPhost = async (req, res) => {
                 email
             }
         }, {
-            new: true, // return updated document
-            runValidators: true // schema validation
+            new: true,
+            runValidators: true
         });
         if (!updatedPhost) {
             return res.status(404).json({
@@ -220,7 +215,7 @@ exports.editPhost = editPhost;
 const getAllPendingPhosts = async (req, res) => {
     try {
         const phosts = await PhostsModel_1.default.find({ status: "pending" })
-            .sort({ createdAt: -1 }); // newest first
+            .sort({ createdAt: -1 });
         res.status(200).json({
             success: true,
             count: phosts.length,
@@ -238,16 +233,13 @@ const getAllPendingPhosts = async (req, res) => {
 exports.getAllPendingPhosts = getAllPendingPhosts;
 const publishPhost = async (req, res) => {
     const { id } = req.query;
-    // 1️⃣ Validate presence & type
     if (!id || typeof id !== "string") {
         return res.status(400).json({ message: "Valid phost id is required" });
     }
-    // 2️⃣ Validate ObjectId
     if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid phost id" });
     }
     try {
-        // 3️⃣ Update status
         const phost = await PhostsModel_1.default.findByIdAndUpdate(id, { status: "published" }, { new: true });
         if (!phost) {
             return res.status(404).json({ message: "Phost not found" });
@@ -276,16 +268,13 @@ const publishPhost = async (req, res) => {
 exports.publishPhost = publishPhost;
 const rejectPhost = async (req, res) => {
     const { id } = req.query;
-    // 1️⃣ Validate presence & type
     if (!id || typeof id !== "string") {
         return res.status(400).json({ message: "Valid phost id is required" });
     }
-    // 2️⃣ Validate ObjectId
     if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: "Invalid phost id" });
     }
     try {
-        // 3️⃣ Update status
         const phost = await PhostsModel_1.default.findByIdAndUpdate(id, { status: "archived" }, { new: true });
         if (!phost) {
             return res.status(404).json({ message: "Phost not found" });
@@ -314,7 +303,7 @@ exports.rejectPhost = rejectPhost;
 const getAllReportPhosts = async (req, res) => {
     try {
         const phosts = await PhostsModel_1.default.find({ status: "archived" })
-            .sort({ createdAt: -1 }); // newest first
+            .sort({ createdAt: -1 });
         res.status(200).json({
             success: true,
             count: phosts.length,
@@ -354,16 +343,14 @@ const getAllPublishedPhosts = async (req, res) => {
             { $match: matchStage },
             { $sort: { _id: -1 } },
             { $limit: limit },
-            // 🔹 Lookup reactions
             {
                 $lookup: {
-                    from: "phostreactions", // collection name (lowercase, plural)
+                    from: "phostreactions",
                     localField: "_id",
                     foreignField: "phostId",
                     as: "reactions",
                 },
             },
-            // 🔹 Calculate counts
             {
                 $addFields: {
                     likeCount: {
@@ -391,7 +378,6 @@ const getAllPublishedPhosts = async (req, res) => {
                     },
                 },
             },
-            // 🔹 Return only needed fields
             {
                 $project: {
                     title: 1,
@@ -464,6 +450,12 @@ const saveReaction = async (req, res) => {
             comment: hasComment ? comment : "",
             username,
             profilePicture: profile,
+        });
+        await (0, email_service_1.sendReactionEmails)({
+            phostId,
+            reactedBy: username,
+            reactionType: hasComment ? "comment" : "like",
+            comment: hasComment ? comment : undefined,
         });
         return res.status(200).json({ success: true, reaction });
     }
@@ -546,10 +538,8 @@ const searchPhosts = async (req, res) => {
             query.email = { $ne: excludeEmail };
         }
         const phosts = await PhostsModel_1.default.find(query).sort({ createdAt: -1 });
-        // Map posts and count reactions
         const mapped = await Promise.all(phosts.map(async (p) => {
             const firstImage = p.body.find((b) => b.type === "IMG");
-            // Count likes and comments
             const likeCount = await ReactionModel_1.default.countDocuments({
                 phostId: p._id,
                 liked: true,
@@ -587,7 +577,7 @@ const getUserReactions = async (req, res) => {
             return res.status(404).json({ message: "No posts found for this user" });
         }
         const phostIds = userPhosts.map((p) => p._id);
-        const reactions = await ReactionModel_1.default.find({ phostId: { $in: phostIds } });
+        const reactions = await ReactionModel_1.default.find({ phostId: { $in: phostIds }, status: true });
         const result = userPhosts.map((post) => {
             const postReactions = reactions.filter((r) => r.phostId.toString() === post._id.toString());
             const totalLikes = postReactions.filter((r) => r.liked).length;
@@ -615,3 +605,29 @@ const getUserReactions = async (req, res) => {
     }
 };
 exports.getUserReactions = getUserReactions;
+const setNotificationStatus = async (req, res) => {
+    try {
+        const { username } = req.query;
+        if (!username || typeof username !== "string") {
+            return res.status(400).json({ message: "Username is required" });
+        }
+        const result = await ReactionModel_1.default.updateMany({
+            status: true,
+            username: { $ne: username }
+        }, {
+            $set: { status: false }
+        });
+        return res.status(200).json({
+            message: "All notifications marked as read",
+            modifiedCount: result.modifiedCount
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Failed to clear notifications",
+            error
+        });
+    }
+};
+exports.setNotificationStatus = setNotificationStatus;

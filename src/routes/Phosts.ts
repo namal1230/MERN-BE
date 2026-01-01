@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserReactions,searchPhosts,getReactionsStats,saveReaction,getAllPublishedPhosts,savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
+import { setNotificationStatus,getUserReactions,searchPhosts,getReactionsStats,saveReaction,getAllPublishedPhosts,savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
 import { downloadPostPDF } from "../controllers/PDFController";
 import { reportPhost } from "../controllers/ReportPhostController";
 
@@ -21,5 +21,6 @@ phostsRouter.post("/save-reaction",saveReaction)
 phostsRouter.post("/get-reaction",getReactionsStats)
 phostsRouter.post("/find-phost",searchPhosts)
 phostsRouter.get("/get-notification",getUserReactions)
+phostsRouter.get("/set-notification",setNotificationStatus)
 
 export default phostsRouter;

@@ -6,7 +6,9 @@ export interface IPhostReaction extends Document {
   profilePicture?: string;
   liked: boolean;
   comment?: string;
+  status?: boolean;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const PhostReactionSchema = new Schema<IPhostReaction>(
@@ -26,21 +28,31 @@ const PhostReactionSchema = new Schema<IPhostReaction>(
     profilePicture: {
       type: String,
     },
+
     liked: {
       type: Boolean,
       default: false,
     },
+
     comment: {
       type: String,
+    },
+
+    status: {
+      type: Boolean,
+      default: true,
+      required: false
     },
   },
   { timestamps: true }
 );
 
-PhostReactionSchema.index({ phostId: 1, userEmail: 1 });
+PhostReactionSchema.index({ phostId: 1, username: 1 });
 PhostReactionSchema.index({ phostId: 1 });
-// PhostReactionSchema.index({ phostId: 1, liked: 1 });
-// PhostReactionSchema.index({ phostId: 1, comment: 1 });
 
-const Reaction = mongoose.model<IPhostReaction>("PhostReaction", PhostReactionSchema);
+const Reaction = mongoose.model<IPhostReaction>(
+  "PhostReaction",
+  PhostReactionSchema
+);
+
 export default Reaction;

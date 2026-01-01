@@ -55,10 +55,13 @@ const PhostReactionSchema = new mongoose_1.Schema({
     comment: {
         type: String,
     },
+    status: {
+        type: Boolean,
+        default: true,
+        required: false
+    },
 }, { timestamps: true });
-PhostReactionSchema.index({ phostId: 1, userEmail: 1 });
+PhostReactionSchema.index({ phostId: 1, username: 1 });
 PhostReactionSchema.index({ phostId: 1 });
-// PhostReactionSchema.index({ phostId: 1, liked: 1 });
-// PhostReactionSchema.index({ phostId: 1, comment: 1 });
 const Reaction = mongoose_1.default.model("PhostReaction", PhostReactionSchema);
 exports.default = Reaction;
