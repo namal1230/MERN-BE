@@ -20,6 +20,8 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 
+
+
 mongoose.connect(MONGO_URI).then(()=>{
     console.log("MONGODB connected successfully")
 }).catch((err)=>{
@@ -30,7 +32,6 @@ mongoose.connect(MONGO_URI).then(()=>{
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
-app.use(morgan("tiny"));
 app.use(cors());
 app.use("/api/upload",uploadRouter);
 app.use("/email", emailRouter);
