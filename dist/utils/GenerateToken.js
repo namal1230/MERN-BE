@@ -11,6 +11,8 @@ const generateToken = (users) => {
         id: users.id,
         name: users.name,
         email: users.email,
+        role: users.role,
+        status: users.status,
     }, String(secret), { expiresIn: "30m" });
 };
 exports.generateToken = generateToken;
@@ -20,6 +22,8 @@ const refreshToken = (users) => {
         id: users.id,
         name: users.name,
         email: users.email,
+        role: users.role,
+        status: users.status,
     }, String(secret), { expiresIn: "7d" });
 };
 exports.refreshToken = refreshToken;

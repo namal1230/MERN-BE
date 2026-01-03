@@ -3,13 +3,14 @@ import { generateToken, refreshToken } from "../utils/GenerateToken";
 import Users from "../models/CustomerModel";
 import UserInfo from "../models/UserInfo";
 import Follow from "../models/FollowSchema";
-import mongoose from "mongoose";
+import Phosts, { IBodyBlock } from "../models/PhostsModel";
 
 export const getCustomer = (req: Request, res: Response) => {
   res.status(200).json("Get Request Customer");
 }
 
 export const loginCustomer = async (req: Request, res: Response) => {
+  console.log("trigger");
 
   try {
     const user = req.body;
@@ -18,17 +19,38 @@ export const loginCustomer = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid user data" });
     }
 
-    const token = generateToken(user);
-    const refresh = refreshToken(user);
+    const existingUser = await Users.findOne({ firebaseUid: user.id });
+
+    const role: "user" | "admin" = existingUser?.role || "user";
+
+
+    const status = existingUser?.status || "VALID";
+
+
+    const token = generateToken({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role,
+      status,
+    });
+
+    const refresh = refreshToken({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role,
+      status,
+    });
 
     const updatedUser = await Users.findOneAndUpdate(
-      { firebaseUid: user.id },
+      { $or: [{ firebaseUid: user.id }, { email: user.email }] },
       {
         $set: {
           firebaseUid: user.id,
           name: user.name,
           email: user.email,
-          profile: user.profile,
+          profile:  user.profile || `default-${Date.now()}`,
           refreshToken: refresh,
         },
       },
@@ -39,6 +61,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
       }
     );
 
+
     await UserInfo.findOneAndUpdate(
       { email: user.email },
       {
@@ -46,6 +69,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
           name: user.name,
           email: user.email,
           profileUrl: user.profile || "",
+          role,
         },
       },
       {
@@ -63,7 +87,14 @@ export const loginCustomer = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Customer login success",
       token,
-      user: updatedUser,
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        profile: updatedUser.profile,
+        role: updatedUser.role,
+        status: updatedUser.status,
+      },
     });
   } catch (err) {
     console.error("Login failed:", err);
@@ -72,7 +103,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
       error: err instanceof Error ? err.message : "Unknown error",
     });
   }
-}
+};
 
 export const saveUserInfo = async (req: Request, res: Response) => {
   try {
@@ -224,5 +255,134 @@ export const getFollowersCountByName = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error(err);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getFollowingPhosts = async (req: Request, res: Response) => {
+  try {
+    const { currentUser } = req.query;
+
+    if (!currentUser) {
+      return res.status(400).json({ message: "currentUser is required" });
+    }
+
+    const follows = await Follow.find({ currentUser })
+      .select("user")
+      .lean();
+
+    if (!follows.length) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        data: [],
+      });
+    }
+
+    const followedUserIds = follows.map(f => f.user);
+
+    const users = await Users.find({
+      _id: { $in: followedUserIds },
+      status: "VALID",
+    })
+      .select("name")
+      .lean();
+
+    if (!users.length) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        data: [],
+      });
+    }
+
+    const usernames = users.map(u => u.name);
+
+    const phosts = await Phosts.aggregate([
+      {
+        $match: {
+          status: "published",
+          username: { $in: usernames },
+        },
+      },
+
+      { $sort: { createdAt: -1 } },
+
+      {
+        $lookup: {
+          from: "phostreactions",
+          localField: "_id",
+          foreignField: "phostId",
+          as: "reactions",
+        },
+      },
+
+      {
+        $addFields: {
+          likeCount: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "r",
+                cond: { $eq: ["$$r.liked", true] },
+              },
+            },
+          },
+          commentCount: {
+            $size: {
+              $filter: {
+                input: "$reactions",
+                as: "r",
+                cond: {
+                  $and: [
+                    { $ne: ["$$r.comment", ""] },
+                    { $ne: ["$$r.comment", null] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          title: 1,
+          body: 1,
+          createdAt: 1,
+          username: 1,
+          likeCount: 1,
+          commentCount: 1,
+        },
+      },
+    ]);
+
+    const data = phosts.map(p => {
+      const firstImage = p.body.find(
+        (b: IBodyBlock) => b.type === "IMG" || b.type === "UNSPLASH"
+      );
+
+      return {
+        _id: p._id.toString(),
+        title: p.title,
+        createdAt: p.createdAt.toISOString(),
+        username: p.username,
+        image: firstImage ? firstImage.value : null,
+        likeCount: p.likeCount,
+        commentCount: p.commentCount,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: data.length,
+      data,
+    });
+
+  } catch (error) {
+    console.error("Get following phosts error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch following phosts",
+    });
   }
 };

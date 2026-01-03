@@ -22,4 +22,5 @@ customerRouter.get("/get-info", CustomerController_1.getUserInfoByEmail);
 customerRouter.get("/get-name-info", CustomerController_1.getUserInfoByName);
 customerRouter.get("/follow-user", CustomerController_1.followUser);
 customerRouter.get("/follow-user-count", CustomerController_1.getFollowersCountByName);
+customerRouter.get("/get-following-phosts", CustomerController_1.getFollowingPhosts);
 exports.default = customerRouter;

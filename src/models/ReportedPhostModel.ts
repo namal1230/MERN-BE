@@ -3,12 +3,13 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IReport extends Document {
   phostId: mongoose.Types.ObjectId;
   reporterEmail: string;
-  reportType: "POST" | "COMMENT" | "USER";
+  reportType: "POST" | "USER";
   reason: "HARASSMENT" | "SPAM" | "HATE" | "VIOLENCE" | "OTHER";
   description: string;
   evidence?: string;
   frequency: "ONCE" | "MULTIPLE";
   acknowledge: boolean;
+  status: boolean;
   createdAt: Date;
 }
 
@@ -16,11 +17,10 @@ const ReportSchema: Schema<IReport> = new Schema(
   {
     phostId: {
       type: Schema.Types.ObjectId,
-      ref: "Phost",
+      ref: "Phosts",
       required: true,
     },
 
-    // 🟢 Reporter Email (used to prevent duplicate reports)
     reporterEmail: {
       type: String,
       required: true,
@@ -31,7 +31,7 @@ const ReportSchema: Schema<IReport> = new Schema(
 
     reportType: {
       type: String,
-      enum: ["POST", "COMMENT", "USER"],
+      enum: ["POST", "USER"],
       required: true,
     },
 
@@ -63,6 +63,11 @@ const ReportSchema: Schema<IReport> = new Schema(
       type: Boolean,
       required: true,
     },
+
+    status: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
@@ -71,5 +76,5 @@ const ReportSchema: Schema<IReport> = new Schema(
 
 ReportSchema.index({ phostId: 1, reporterEmail: 1 }, { unique: true });
 
-const Report =  mongoose.model<IReport>("Report", ReportSchema);
+const Report = mongoose.model<IReport>("Report", ReportSchema);
 export default Report;

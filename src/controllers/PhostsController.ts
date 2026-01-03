@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import Phosts, { IBodyBlock } from "../models/PhostsModel";
 import mongoose from "mongoose";
-import { sendLoginEmails,sendReactionEmails } from "../services/email.service";
+import { sendLoginEmails, sendReactionEmails } from "../services/email.service";
 import Reaction from "../models/ReactionModel";
+import Report from "../models/ReportedPhostModel"
 export interface Draft {
   _id: string;
   title: string;
@@ -140,6 +141,80 @@ export const getDraftPhost = async (req: Request, res: Response) => {
     res.status(500).json({
       message: "Internal Server Error"
     });
+  }
+};
+
+export const getReportByPhostId = async (req: Request, res: Response) => {
+  try {
+    const { phostId } = req.query;
+
+    if (!phostId || typeof phostId !== "string") {
+      return res.status(400).json({ message: "phostId is required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(phostId)) {
+      return res.status(400).json({ message: "invalid phostId" });
+    }
+
+    const report = await Report.findOne({ _id: phostId })
+      .populate("phostId")
+      .exec();
+
+    if (!report) {
+      return res.status(404).json({ message: "report not found for this phost" });
+    }
+
+    const phost = await Phosts.findById(report.phostId).exec();
+
+    if (!phost) {
+      return res.status(404).json({ message: "Phost not found for this report" });
+    }
+
+    res.status(200).json({
+      title: phost.title,
+      body: phost.body,
+      code: phost.code || "",
+      createdAt: phost.createdAt,
+      updatedAt: phost.updatedAt,
+      status: phost.status,
+    });
+
+  } catch (error) {
+    console.error("Failed to fetch report:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const deactivateReportedPhost = async (req: Request, res: Response) => {
+  try {
+    const { phostId } = req.query;
+
+    if (!phostId || typeof phostId !== "string") {
+      return res.status(400).json({ message: "phostId is required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(phostId)) {
+      return res.status(400).json({ message: "invalid phostId" });
+    }
+
+    const updatedReport = await Report.findOneAndUpdate(
+      { _id: phostId },
+      { $set: { status: false } },
+      { new: true }
+    );
+
+    if (!updatedReport) {
+      return res.status(404).json({ message: "Report not found for this phost" });
+    }
+
+    res.status(200).json({
+      message: "Report status updated successfully",
+      report: updatedReport,
+    });
+
+  } catch (error) {
+    console.error("Failed to update report status:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -315,16 +390,26 @@ export const rejectPhost = async (req: Request, res: Response) => {
   const { id } = req.query;
 
   if (!id || typeof id !== "string") {
-    return res.status(400).json({ message: "Valid phost id is required" });
+    return res.status(400).json({ message: "Valid report id is required" });
   }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid phost id" });
+    return res.status(400).json({ message: "Invalid report id" });
   }
 
   try {
+    const reported = await Report.findById(id);
+    if (!reported) {
+      return res.status(404).json({ message: "Reported phost not found" });
+    }
+
+    const phostId = reported.phostId;
+    if (!mongoose.Types.ObjectId.isValid(phostId)) {
+      return res.status(400).json({ message: "Invalid phost id in report" });
+    }
+
     const phost = await Phosts.findByIdAndUpdate(
-      id,
+      phostId,
       { status: "archived" },
       { new: true }
     );
@@ -338,38 +423,49 @@ export const rejectPhost = async (req: Request, res: Response) => {
     const description: string = phost.title;
 
     if (email && description) {
-      await sendLoginEmails({ email, description, status })
+      await sendLoginEmails({ email, description, status });
+    }
+
+    const reporteds = await Report.findByIdAndUpdate(
+      id,
+      { status: false },
+      { new: true }
+    );
+
+    if (!reporteds) {
+      return res.status(404).json({ message: "Reported phost not found" });
     }
 
     res.status(200).json({
       success: true,
       message: "Phost rejected successfully",
-      data: phost
+      data: phost,
     });
   } catch (error) {
-    console.error("Publish error:", error);
+    console.error("Reject error:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to publish phost"
+      message: "Failed to reject phost",
     });
   }
 };
 
 export const getAllReportPhosts = async (req: Request, res: Response) => {
   try {
-    const phosts = await Phosts.find({ status: "archived" })
+    const reports = await Report.find({ reportType: "POST", status: true })
+      .populate("phostId")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
-      count: phosts.length,
-      data: phosts
+      count: reports.length,
+      data: reports,
     });
   } catch (error) {
     console.error("Error fetching reported phosts:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch reported phosts"
+      message: "Failed to fetch reported phosts",
     });
   }
 }
@@ -528,7 +624,7 @@ export const saveReaction = async (req: Request, res: Response) => {
       username,
       profilePicture: profile,
     });
-    
+
     await sendReactionEmails({
       phostId,
       reactedBy: username,

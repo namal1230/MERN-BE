@@ -1,5 +1,5 @@
 import express from "express";
-import { followUser,getFollowersCountByName,getCustomer,loginCustomer,saveUserInfo,getUserInfoByEmail,getUserInfoByName } from "../controllers/CustomerController";
+import { getFollowingPhosts,followUser,getFollowersCountByName,getCustomer,loginCustomer,saveUserInfo,getUserInfoByEmail,getUserInfoByName } from "../controllers/CustomerController";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
@@ -27,5 +27,6 @@ customerRouter.get("/get-info",getUserInfoByEmail);
 customerRouter.get("/get-name-info",getUserInfoByName);
 customerRouter.get("/follow-user",followUser);
 customerRouter.get("/follow-user-count",getFollowersCountByName);
+customerRouter.get("/get-following-phosts",getFollowingPhosts);
 
 export default customerRouter;

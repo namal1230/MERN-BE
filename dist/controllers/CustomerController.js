@@ -3,29 +3,46 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFollowersCountByName = exports.followUser = exports.getUserInfoByName = exports.getUserInfoByEmail = exports.saveUserInfo = exports.loginCustomer = exports.getCustomer = void 0;
+exports.getFollowingPhosts = exports.getFollowersCountByName = exports.followUser = exports.getUserInfoByName = exports.getUserInfoByEmail = exports.saveUserInfo = exports.loginCustomer = exports.getCustomer = void 0;
 const GenerateToken_1 = require("../utils/GenerateToken");
 const CustomerModel_1 = __importDefault(require("../models/CustomerModel"));
 const UserInfo_1 = __importDefault(require("../models/UserInfo"));
 const FollowSchema_1 = __importDefault(require("../models/FollowSchema"));
+const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const getCustomer = (req, res) => {
     res.status(200).json("Get Request Customer");
 };
 exports.getCustomer = getCustomer;
 const loginCustomer = async (req, res) => {
+    console.log("trigger");
     try {
         const user = req.body;
         if (!user?.id || !user?.email) {
             return res.status(400).json({ message: "Invalid user data" });
         }
-        const token = (0, GenerateToken_1.generateToken)(user);
-        const refresh = (0, GenerateToken_1.refreshToken)(user);
-        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ firebaseUid: user.id }, {
+        const existingUser = await CustomerModel_1.default.findOne({ firebaseUid: user.id });
+        const role = existingUser?.role || "user";
+        const status = existingUser?.status || "VALID";
+        const token = (0, GenerateToken_1.generateToken)({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role,
+            status,
+        });
+        const refresh = (0, GenerateToken_1.refreshToken)({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role,
+            status,
+        });
+        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ $or: [{ firebaseUid: user.id }, { email: user.email }] }, {
             $set: {
                 firebaseUid: user.id,
                 name: user.name,
                 email: user.email,
-                profile: user.profile,
+                profile: user.profile || `default-${Date.now()}`,
                 refreshToken: refresh,
             },
         }, {
@@ -38,6 +55,7 @@ const loginCustomer = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 profileUrl: user.profile || "",
+                role,
             },
         }, {
             upsert: true,
@@ -51,7 +69,14 @@ const loginCustomer = async (req, res) => {
         res.status(200).json({
             message: "Customer login success",
             token,
-            user: updatedUser,
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                profile: updatedUser.profile,
+                role: updatedUser.role,
+                status: updatedUser.status,
+            },
         });
     }
     catch (err) {
@@ -184,3 +209,115 @@ const getFollowersCountByName = async (req, res) => {
     }
 };
 exports.getFollowersCountByName = getFollowersCountByName;
+const getFollowingPhosts = async (req, res) => {
+    try {
+        const { currentUser } = req.query;
+        if (!currentUser) {
+            return res.status(400).json({ message: "currentUser is required" });
+        }
+        const follows = await FollowSchema_1.default.find({ currentUser })
+            .select("user")
+            .lean();
+        if (!follows.length) {
+            return res.status(200).json({
+                success: true,
+                count: 0,
+                data: [],
+            });
+        }
+        const followedUserIds = follows.map(f => f.user);
+        const users = await CustomerModel_1.default.find({
+            _id: { $in: followedUserIds },
+            status: "VALID",
+        })
+            .select("name")
+            .lean();
+        if (!users.length) {
+            return res.status(200).json({
+                success: true,
+                count: 0,
+                data: [],
+            });
+        }
+        const usernames = users.map(u => u.name);
+        const phosts = await PhostsModel_1.default.aggregate([
+            {
+                $match: {
+                    status: "published",
+                    username: { $in: usernames },
+                },
+            },
+            { $sort: { createdAt: -1 } },
+            {
+                $lookup: {
+                    from: "phostreactions",
+                    localField: "_id",
+                    foreignField: "phostId",
+                    as: "reactions",
+                },
+            },
+            {
+                $addFields: {
+                    likeCount: {
+                        $size: {
+                            $filter: {
+                                input: "$reactions",
+                                as: "r",
+                                cond: { $eq: ["$$r.liked", true] },
+                            },
+                        },
+                    },
+                    commentCount: {
+                        $size: {
+                            $filter: {
+                                input: "$reactions",
+                                as: "r",
+                                cond: {
+                                    $and: [
+                                        { $ne: ["$$r.comment", ""] },
+                                        { $ne: ["$$r.comment", null] },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    title: 1,
+                    body: 1,
+                    createdAt: 1,
+                    username: 1,
+                    likeCount: 1,
+                    commentCount: 1,
+                },
+            },
+        ]);
+        const data = phosts.map(p => {
+            const firstImage = p.body.find((b) => b.type === "IMG" || b.type === "UNSPLASH");
+            return {
+                _id: p._id.toString(),
+                title: p.title,
+                createdAt: p.createdAt.toISOString(),
+                username: p.username,
+                image: firstImage ? firstImage.value : null,
+                likeCount: p.likeCount,
+                commentCount: p.commentCount,
+            };
+        });
+        return res.status(200).json({
+            success: true,
+            count: data.length,
+            data,
+        });
+    }
+    catch (error) {
+        console.error("Get following phosts error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch following phosts",
+        });
+    }
+};
+exports.getFollowingPhosts = getFollowingPhosts;

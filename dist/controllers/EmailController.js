@@ -31,8 +31,10 @@ const getEmails = async (req, res) => {
         return res.status(400).json({ message: "status query is required" });
     }
     try {
-        const emails = await EmailModel_1.default.find({ source: status })
-            .sort({ createdAt: -1 });
+        const emails = await EmailModel_1.default.find({
+            source: status,
+            status: true
+        }).sort({ createdAt: -1 });
         res.status(200).json(emails);
     }
     catch (error) {

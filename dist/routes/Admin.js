@@ -10,6 +10,7 @@ const path_1 = __importDefault(require("path"));
 const morgan_1 = __importDefault(require("morgan"));
 const adminRouter = express_1.default.Router();
 adminRouter.get("/get-stats", AdminDashboard_1.getDashboardStats);
+adminRouter.get("/resole-login", AdminDashboard_1.deactivateEmail);
 const LOG_DIR = path_1.default.join(process.cwd(), "logs");
 if (!fs_1.default.existsSync(LOG_DIR)) {
     fs_1.default.mkdirSync(LOG_DIR);

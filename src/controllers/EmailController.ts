@@ -31,8 +31,10 @@ export const getEmails = async (req: Request, res: Response) => {
   }
 
   try {
-    const emails = await Email.find({ source: status })
-      .sort({ createdAt: -1 });
+    const emails = await Email.find({ 
+      source: status,
+      status: true 
+    }).sort({ createdAt: -1 });
 
     res.status(200).json(emails);
   } catch (error) {

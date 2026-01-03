@@ -1,5 +1,5 @@
 import express from "express";
-import { getDashboardStats } from "../controllers/AdminDashboard";
+import { getDashboardStats,deactivateEmail } from "../controllers/AdminDashboard";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
@@ -7,6 +7,7 @@ import morgan from "morgan";
 const adminRouter = express.Router();
 
 adminRouter.get("/get-stats",getDashboardStats);
+adminRouter.get("/resole-login",deactivateEmail);
 
 const LOG_DIR = path.join(process.cwd(), "logs");
 

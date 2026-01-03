@@ -37,10 +37,9 @@ const mongoose_1 = __importStar(require("mongoose"));
 const ReportSchema = new mongoose_1.Schema({
     phostId: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "Phost",
+        ref: "Phosts",
         required: true,
     },
-    // 🟢 Reporter Email (used to prevent duplicate reports)
     reporterEmail: {
         type: String,
         required: true,
@@ -50,7 +49,7 @@ const ReportSchema = new mongoose_1.Schema({
     },
     reportType: {
         type: String,
-        enum: ["POST", "COMMENT", "USER"],
+        enum: ["POST", "USER"],
         required: true,
     },
     reason: {
@@ -76,6 +75,10 @@ const ReportSchema = new mongoose_1.Schema({
     acknowledge: {
         type: Boolean,
         required: true,
+    },
+    status: {
+        type: Boolean,
+        default: true,
     },
 }, {
     timestamps: true,

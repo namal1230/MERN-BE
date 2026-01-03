@@ -7,16 +7,25 @@ import { stat } from "node:fs";
 interface SendLoginIssueEmailParams {
     email: string;
     description: string;
-    status: string;
+    status?: string;
 }
 
 interface SendReactionEmailParams {
-  phostId: string;
-  reactedBy: string;
-  reactionType: "like" | "comment";
-  comment?: string;
+    phostId: string;
+    reactedBy: string;
+    reactionType: "like" | "comment";
+    comment?: string;
 }
 
+interface ReportEmail {
+    phostId: string;
+    reporterEmail: string;
+    reportType: string;
+    reason: string;
+    description: string;
+    evidence: string;
+    frequency: string;
+}
 
 // export const handleLoginIssueEmail = async ({
 //   email,
@@ -56,7 +65,7 @@ export const sendLoginEmails = async ({ email,
         return savedEmail;
     }
 
-    if (status == "phost-upload"){
+    if (status == "phost-upload") {
         await sendMail(
             "dilmithqwe@gmail.com",
             "Phost Uploaded",
@@ -64,7 +73,7 @@ export const sendLoginEmails = async ({ email,
         );
     }
 
-    if (status == "phost-published"){
+    if (status == "phost-published") {
         await sendMail(
             email,
             "Phost Published",
@@ -72,7 +81,7 @@ export const sendLoginEmails = async ({ email,
         );
     }
 
-    if (status == "phost-rejected"){
+    if (status == "phost-rejected") {
         await sendMail(
             email,
             "Phost Rejected",
@@ -81,31 +90,57 @@ export const sendLoginEmails = async ({ email,
     }
 };
 
-export const sendReactionEmails = async ({phostId,reactedBy,reactionType,comment,
+export const sendReactionEmails = async ({ phostId, reactedBy, reactionType, comment,
 }: SendReactionEmailParams) => {
-  const phost = await Phosts.findById(phostId).select("title email username");
+    const phost = await Phosts.findById(phostId).select("title email username");
 
-  if (!phost) return null;
+    if (!phost) return null;
 
-  if (phost.username === reactedBy) return null;
-  let subject = "";
-  let message = "";
+    if (phost.username === reactedBy) return null;
+    let subject = "";
+    let message = "";
 
-  if (reactionType === "like") {
-    subject = "Your Phost got a Like";
-    message = `${reactedBy} liked your post.\n\n Post Title: ${phost.title} \n\nFrom: Smart Blog Phost`;
-  }
+    if (reactionType === "like") {
+        subject = "Your Phost got a Like";
+        message = `${reactedBy} liked your post.\n\n Post Title: ${phost.title} \n\nFrom: Smart Blog Phost`;
+    }
 
-  if (reactionType === "comment") {
-    subject = "New Comment on Your Phost";
-    message = `${reactedBy} commented on your post.\n\nPost Title: ${phost.title}\n\nComment:${comment}\n\nFrom: Smart Blog Phost`;
-  }
+    if (reactionType === "comment") {
+        subject = "New Comment on Your Phost";
+        message = `${reactedBy} commented on your post.\n\nPost Title: ${phost.title}\n\nComment:${comment}\n\nFrom: Smart Blog Phost`;
+    }
 
-  await sendMail(phost.email, subject, message);
+    await sendMail(phost.email, subject, message);
 
-  return true;
+    return true;
+};
+
+export const sendLoginResponse = async ({ email, description }: SendLoginIssueEmailParams) => {
+
+    await sendMail(email, "Admin Review For Login Issue", description);
+
+    return true;
 };
 
 
+export const sendReportEmailAdmin = async ({ phostId, reporterEmail, reportType, reason, description, evidence, frequency }: ReportEmail) => {
+    const adminMessage = `
+     New Phost Report Submitted
 
+    Phost ID: ${phostId}
+    Reported By: ${reporterEmail}
 
+    Report Type: ${reportType}
+    Reason: ${reason}
+    Frequency: ${frequency}
+
+    Description:${description}
+
+    Evidence:${evidence || "No evidence provided"}`;
+
+    await sendMail(
+        "namaldilmith2@gmail.com",
+        "New Report Received",
+        adminMessage
+    );
+}

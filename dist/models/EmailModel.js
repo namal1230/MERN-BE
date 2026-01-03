@@ -11,32 +11,36 @@ const EmailSchema = new mongoose_1.default.Schema({
         lowercase: true,
         trim: true,
         index: true,
-        match: [/^\S+@\S+\.\S+$/, "Invalid email format"]
+        match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
     source: {
         type: String,
         enum: ["login-issue", "phost-upload", "report-user", "report-phost"],
-        required: true
+        required: true,
     },
     title: {
         type: String,
-        trim: true
+        trim: true,
     },
     body: {
         type: String,
-        trim: true
+        trim: true,
     },
     loginType: {
         type: String,
         enum: ["new", "existing"],
-        required: false // optional, only for login-issue
+        required: false,
     },
     userProfile: {
-        type: String, // store profile image URL
-        required: false
-    }
+        type: String,
+        required: false,
+    },
+    status: {
+        type: Boolean,
+        default: true,
+    },
 }, {
-    timestamps: true // auto adds createdAt & updatedAt
+    timestamps: true,
 });
 const Email = mongoose_1.default.model("Email", EmailSchema);
 exports.default = Email;

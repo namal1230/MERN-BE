@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendReactionEmails = exports.sendLoginEmails = void 0;
+exports.sendReportEmailAdmin = exports.sendLoginResponse = exports.sendReactionEmails = exports.sendLoginEmails = void 0;
 const Mailer_1 = require("../utils/Mailer");
 const EmailModel_1 = __importDefault(require("../models/EmailModel")); // adjust path if needed
 const CustomerModel_1 = __importDefault(require("../models/CustomerModel"));
@@ -65,3 +65,25 @@ const sendReactionEmails = async ({ phostId, reactedBy, reactionType, comment, }
     return true;
 };
 exports.sendReactionEmails = sendReactionEmails;
+const sendLoginResponse = async ({ email, description }) => {
+    await (0, Mailer_1.sendMail)(email, "Admin Review For Login Issue", description);
+    return true;
+};
+exports.sendLoginResponse = sendLoginResponse;
+const sendReportEmailAdmin = async ({ phostId, reporterEmail, reportType, reason, description, evidence, frequency }) => {
+    const adminMessage = `
+     New Phost Report Submitted
+
+    Phost ID: ${phostId}
+    Reported By: ${reporterEmail}
+
+    Report Type: ${reportType}
+    Reason: ${reason}
+    Frequency: ${frequency}
+
+    Description:${description}
+
+    Evidence:${evidence || "No evidence provided"}`;
+    await (0, Mailer_1.sendMail)("namaldilmith2@gmail.com", "New Report Received", adminMessage);
+};
+exports.sendReportEmailAdmin = sendReportEmailAdmin;

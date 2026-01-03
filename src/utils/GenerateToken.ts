@@ -4,6 +4,8 @@ interface user{
     id:string;
     name:string;
     email:string;
+    role?: "user" | "admin";
+    status?: "VALID" | "REJECTED" | "Reported";
 }
 
 export const generateToken = (users:user)=>{
@@ -14,6 +16,8 @@ export const generateToken = (users:user)=>{
         id:users.id,
         name:users.name,
         email:users.email,
+        role: users.role,
+        status: users.status,
     },String(secret),{expiresIn:"30m"})
 
 }
@@ -26,6 +30,8 @@ export const refreshToken = (users:user)=>{
         id:users.id,
         name:users.name,
         email:users.email,
+        role: users.role,
+        status: users.status,
     },String(secret),{expiresIn:"7d"})
 
 }
