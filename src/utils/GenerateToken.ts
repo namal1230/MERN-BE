@@ -18,11 +18,11 @@ export const generateToken = (users:user)=>{
         email:users.email,
         role: users.role,
         status: users.status,
-    },String(secret),{expiresIn:"30m"})
+    },String(secret),{expiresIn:"5s"})
 
 }
 
-export const refreshToken = (users:user)=>{
+export const refreshTokens = (users:user)=>{
     
     const secret = process.env.REFRESH_CODE;
     

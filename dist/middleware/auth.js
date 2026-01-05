@@ -5,22 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const AuthVerfication = (req, resp, next) => {
-    const secret = process.env.SECRET_CODE;
     const auth = req.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) {
-        console.log(auth);
-        return resp.status(401).json({ message: "Unauthorized" });
+    console.log("Headers:", req.headers);
+    if (!auth || !auth.startsWith("Bearer ")) {
+        resp.status(401).json("Not Verfied Authentication");
     }
-    const token = auth.split(" ")[1];
-    console.log(token);
-    try {
-        const status = jsonwebtoken_1.default.verify(String(token), String(secret));
-        req.user = status;
-        console.log(status);
-        next();
+    const token = auth?.split(" ")[1];
+    if (!token) {
+        return resp.status(401).json({ message: "Token missing" });
     }
-    catch (err) {
-        resp.status(403).json("Forbidden Error");
-    }
+    jsonwebtoken_1.default.verify(token, process.env.SECRET_CODE);
+    next();
 };
 exports.default = AuthVerfication;

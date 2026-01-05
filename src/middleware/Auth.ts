@@ -1,28 +1,25 @@
-import {Request,Response,NextFunction} from "express";
-import jsonwebtoken from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-const AuthVerfication=(req:Request,resp:Response,next:NextFunction)=>{
+const AuthVerfication = (req: Request, resp: Response, next: NextFunction) => {
 
-    const secret:string|undefined = process.env.SECRET_CODE;
-    const auth:string|undefined = req.headers.authorization;
+    const auth: string | undefined = req.headers.authorization;
 
-      if (!auth?.startsWith("Bearer ")) {
-        console.log(auth);
-        return resp.status(401).json({ message: "Unauthorized" });
+    console.log("Headers:", req.headers);
+
+    if (!auth || !auth.startsWith("Bearer ")) {
+        resp.status(401).json("Not Verfied Authentication");
     }
 
+    const token = auth?.split(" ")[1];
 
-    const token = auth.split(" ")[1];
-    console.log(token);
-    try{
-        const status = jsonwebtoken.verify(String(token),String(secret));
-        (req as any).user = status;
-        console.log(status);
-        next();
-    }catch(err){
-        resp.status(403).json("Forbidden Error")
+    if (!token) {
+        return resp.status(401).json({ message: "Token missing" });
     }
+
+    jwt.verify(token, process.env.SECRET_CODE as string);
+
+    next();
 }
 
 export default AuthVerfication;
-

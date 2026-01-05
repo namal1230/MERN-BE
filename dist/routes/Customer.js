@@ -18,12 +18,12 @@ const accessLogStream = fs_1.default.createWriteStream(path_1.default.join(LOG_D
 customerRouter.use((0, morgan_1.default)("tiny", { stream: accessLogStream }));
 customerRouter.get("/get-customer", Auth_1.default, CustomerController_1.getCustomer);
 customerRouter.post("/login-customer", CustomerController_1.loginCustomer);
-customerRouter.get("/refresh-token", CustomerController_1.refreshAccessToken);
 customerRouter.post("/save-info", Auth_1.default, CustomerController_1.saveUserInfo);
 customerRouter.get("/get-info", Auth_1.default, CustomerController_1.getUserInfoByEmail);
 customerRouter.get("/get-name-info", Auth_1.default, CustomerController_1.getUserInfoByName);
 customerRouter.get("/follow-user", Auth_1.default, CustomerController_1.followUser);
 customerRouter.get("/follow-user-count", Auth_1.default, CustomerController_1.getFollowersCountByName);
 customerRouter.get("/get-following-phosts", Auth_1.default, CustomerController_1.getFollowingPhosts);
+customerRouter.get("/refresh-token", CustomerController_1.refreshAccessToken);
 customerRouter.get("/verify-refresh-token", CustomerController_1.getCurrentUser);
 exports.default = customerRouter;

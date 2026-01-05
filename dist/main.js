@@ -17,6 +17,7 @@ const Admin_1 = __importDefault(require("./routes/Admin"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
+app.use((0, cookie_parser_1.default)());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 mongoose_1.default.connect(MONGO_URI).then(() => {
@@ -24,11 +25,10 @@ mongoose_1.default.connect(MONGO_URI).then(() => {
 }).catch((err) => {
     console.error("MongoDB Connection Failed", err);
 });
-app.use((0, cookie_parser_1.default)());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: ["https://blog-phost3-3gpdcbeht-namal-dilmiths-projects.vercel.app", "http://localhost:5173"],
+    origin: "https://blog-phost3-ccb7owz84-namal-dilmiths-projects.vercel.app",
     credentials: true,
 }));
 app.use("/api/upload", Upload_1.default);

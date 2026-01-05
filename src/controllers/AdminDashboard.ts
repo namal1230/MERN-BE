@@ -6,6 +6,7 @@ import { sendLoginResponse, sendRejectedAccount } from "../services/email.servic
 import Report from "../models/ReportedPhostModel"
 
 export const getDashboardStats = async (req: Request, res: Response) => {
+  console.log("get-request")
   try {
     const [validUsers, rejectedUsers, reportedUsers] = await Promise.all([
       Users.countDocuments({ status: 'VALID' }),

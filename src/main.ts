@@ -10,9 +10,12 @@ import uploadRouter from "./routes/Upload";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
 import cookieParser from "cookie-parser";
+
 dotenv.config();
 
 const app = express();
+
+app.use(cookieParser());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 
@@ -24,13 +27,11 @@ mongoose.connect(MONGO_URI).then(()=>{
     console.error("MongoDB Connection Failed", err)
 })
 
-
-app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
 app.use(cors({
-    origin:["https://blog-phost3-3gpdcbeht-namal-dilmiths-projects.vercel.app","http://localhost:5173"],
+    origin:"https://blog-phost3-ccb7owz84-namal-dilmiths-projects.vercel.app",
     credentials:true,
 }));
 

@@ -10,6 +10,7 @@ const EmailModel_1 = __importDefault(require("../models/EmailModel"));
 const email_service_1 = require("../services/email.service");
 const ReportedPhostModel_1 = __importDefault(require("../models/ReportedPhostModel"));
 const getDashboardStats = async (req, res) => {
+    console.log("get-request");
     try {
         const [validUsers, rejectedUsers, reportedUsers] = await Promise.all([
             CustomerModel_1.default.countDocuments({ status: 'VALID' }),

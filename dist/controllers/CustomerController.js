@@ -10,45 +10,25 @@ const UserInfo_1 = __importDefault(require("../models/UserInfo"));
 const FollowSchema_1 = __importDefault(require("../models/FollowSchema"));
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const VerifyRefreshToken_1 = require("../utils/VerifyRefreshToken");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const getCustomer = (req, res) => {
     res.status(200).json("Get Request Customer");
 };
 exports.getCustomer = getCustomer;
 const loginCustomer = async (req, res) => {
-    console.log("Request body:", req.body); // add this
-    console.log("Request headers:", req.headers);
-    console.log("trigger");
     try {
         const user = req.body;
         if (!user?.id || !user?.email) {
             return res.status(400).json({ message: "Invalid user data" });
         }
-        const existingUser = await CustomerModel_1.default.findOne({ firebaseUid: user.id });
-        const role = existingUser?.role || "user";
-        const status = existingUser?.status || "VALID";
-        if (status !== "VALID") {
-            return res.status(403).json({ message: "Your Account Has Restricted." });
-        }
-        const token = (0, GenerateToken_1.generateToken)({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role,
-            status,
-        });
-        const refresh = (0, GenerateToken_1.refreshToken)({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role,
-            status,
-        });
-        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ $or: [{ firebaseUid: user.id }, { email: user.email }] }, {
+        const token = (0, GenerateToken_1.generateToken)(user);
+        const refresh = (0, GenerateToken_1.refreshTokens)(user);
+        const updatedUser = await CustomerModel_1.default.findOneAndUpdate({ firebaseUid: user.id }, {
             $set: {
                 firebaseUid: user.id,
                 name: user.name,
                 email: user.email,
-                profile: user.profile || `default-${Date.now()}`,
+                profile: user.profile,
                 refreshToken: refresh,
             },
         }, {
@@ -61,7 +41,6 @@ const loginCustomer = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 profileUrl: user.profile || "",
-                role,
             },
         }, {
             upsert: true,
@@ -75,14 +54,7 @@ const loginCustomer = async (req, res) => {
         res.status(200).json({
             message: "Customer login success",
             token,
-            user: {
-                id: updatedUser._id,
-                name: updatedUser.name,
-                email: updatedUser.email,
-                profile: updatedUser.profile,
-                role: updatedUser.role,
-                status: updatedUser.status,
-            },
+            user: updatedUser,
         });
     }
     catch (err) {
@@ -330,11 +302,16 @@ exports.getFollowingPhosts = getFollowingPhosts;
 const refreshAccessToken = async (req, res) => {
     try {
         const refreshTokenFromCookie = req.cookies?.refresh;
-        console.log(refreshTokenFromCookie);
+        console.log(exports.refreshAccessToken);
+        console.log("Refresh token:", refreshTokenFromCookie);
+        console.log("REFRESH_CODE:", process.env.REFRESH_CODE);
         if (!refreshTokenFromCookie) {
-            return res.status(401).json({ message: "No refresh token" });
+            return res.status(401).json({
+                message: "No refresh token"
+            });
         }
         const decoded = (0, VerifyRefreshToken_1.verifyRefreshToken)(refreshTokenFromCookie);
+        console.log("Decoded 1", decoded);
         if (!decoded) {
             return res.status(403).json({ message: "Invalid refresh token" });
         }
@@ -342,16 +319,9 @@ const refreshAccessToken = async (req, res) => {
         if (!user) {
             return res.status(403).json({ message: "Refresh token not found" });
         }
-        const newAccessToken = (0, GenerateToken_1.generateToken)({
-            id: user.firebaseUid,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            status: user.status,
-        });
-        return res.status(200).json({
-            accessToken: newAccessToken,
-        });
+        const newAccessToken = (0, GenerateToken_1.generateToken)({ id: user.firebaseUid, name: user.name, email: user.email, role: user.role, status: user.status, });
+        console.log("Decoded access token:", jsonwebtoken_1.default.decode(newAccessToken));
+        return res.status(200).json({ accessToken: newAccessToken, });
     }
     catch (err) {
         return res.status(500).json({ message: "Refresh failed" });
@@ -361,11 +331,11 @@ exports.refreshAccessToken = refreshAccessToken;
 const getCurrentUser = async (req, res) => {
     try {
         const refreshToken = req.cookies?.refresh;
-        console.log("Refresh token from cookie:", refreshToken);
         if (!refreshToken) {
             return res.status(401).json({ message: "No refresh token" });
         }
         const decoded = (0, VerifyRefreshToken_1.verifyRefreshToken)(refreshToken);
+        console.log("Decoded 2", decoded);
         if (!decoded) {
             return res.status(403).json({ message: "Invalid refresh token" });
         }
