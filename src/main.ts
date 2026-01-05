@@ -20,13 +20,13 @@ const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 
 app.options("*", cors({
-  origin: "https://smart-blog-eosin.vercel.app",
+  origin: "https://smart-blog-eosin.vercel.app/",
   credentials: true
 }));
 
 
 app.use(cors({
-    origin:"https://smart-blog-eosin.vercel.app",
+    origin:"https://smart-blog-eosin.vercel.app/",
     credentials:true,
 }));
 
