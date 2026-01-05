@@ -17,7 +17,7 @@ const AuthVerfication=(req:Request,resp:Response,next:NextFunction)=>{
     try{
         const status = jsonwebtoken.verify(String(token),String(secret));
         (req as any).user = status;
-
+        console.log(status);
         next();
     }catch(err){
         resp.status(403).json("Forbidden Error")

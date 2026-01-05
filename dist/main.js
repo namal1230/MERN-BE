@@ -28,7 +28,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: "https://smart-blog2.vercel.app",
+    origin: ["https://blog-phost3-3gpdcbeht-namal-dilmiths-projects.vercel.app", "http://localhost:5173"],
     credentials: true,
 }));
 app.use("/api/upload", Upload_1.default);

@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
 app.use(cors({
-    origin:"https://smart-blog2.vercel.app",
+    origin:["https://blog-phost3-3gpdcbeht-namal-dilmiths-projects.vercel.app","http://localhost:5173"],
     credentials:true,
 }));
 

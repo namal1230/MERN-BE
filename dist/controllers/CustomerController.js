@@ -26,7 +26,7 @@ const loginCustomer = async (req, res) => {
         const existingUser = await CustomerModel_1.default.findOne({ firebaseUid: user.id });
         const role = existingUser?.role || "user";
         const status = existingUser?.status || "VALID";
-        if (existingUser?.status !== "VALID") {
+        if (status !== "VALID") {
             return res.status(403).json({ message: "Your Account Has Restricted." });
         }
         const token = (0, GenerateToken_1.generateToken)({

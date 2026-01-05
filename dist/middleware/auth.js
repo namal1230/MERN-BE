@@ -16,6 +16,7 @@ const AuthVerfication = (req, resp, next) => {
     try {
         const status = jsonwebtoken_1.default.verify(String(token), String(secret));
         req.user = status;
+        console.log(status);
         next();
     }
     catch (err) {

@@ -11,7 +11,7 @@ export const getCustomer = (req: Request, res: Response) => {
 }
 
 export const loginCustomer = async (req: Request, res: Response) => {
-    console.log("Request body:", req.body); // add this
+  console.log("Request body:", req.body); // add this
   console.log("Request headers:", req.headers);
   console.log("trigger");
 
@@ -29,7 +29,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
 
     const status = existingUser?.status || "VALID";
 
-    if (existingUser?.status !== "VALID") {
+    if (status !== "VALID") {
       return res.status(403).json({ message: "Your Account Has Restricted." });
     }
 
@@ -403,7 +403,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     }
 
     const decoded = verifyRefreshToken(refreshTokenFromCookie);
-  
+
     if (!decoded) {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
