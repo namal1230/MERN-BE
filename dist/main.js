@@ -20,6 +20,10 @@ const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
+app.options("*", (0, cors_1.default)({
+    origin: "https://smart-blog-eosin.vercel.app",
+    credentials: true
+}));
 app.use((0, cors_1.default)({
     origin: "https://smart-blog-eosin.vercel.app",
     credentials: true,
