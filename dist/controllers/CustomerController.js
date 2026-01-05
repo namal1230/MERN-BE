@@ -49,7 +49,7 @@ const loginCustomer = async (req, res) => {
         res.cookie("refresh", refresh, {
             httpOnly: true,
             secure: true,
-            sameSite: "strict",
+            sameSite: "none",
         });
         res.status(200).json({
             message: "Customer login success",

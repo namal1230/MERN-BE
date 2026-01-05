@@ -28,9 +28,15 @@ mongoose_1.default.connect(MONGO_URI).then(() => {
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: "https://smart-blog-eosin.vercel.app/",
+    origin: "https://smart-blog-eosin.vercel.app",
     credentials: true,
 }));
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    next();
+});
 app.use("/api/upload", Upload_1.default);
 app.use("/email", EmailRouter_1.default);
 app.use("/customer", Customer_1.default);
