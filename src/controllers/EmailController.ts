@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Email from "../models/EmailModel"; // adjust path if needed
+import Email from "../models/EmailModel";
 import { sendLoginEmails } from "../services/email.service";
 
 export const sendLoginEmail = async (req: Request, res: Response) => {

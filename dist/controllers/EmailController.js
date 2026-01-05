@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getEmails = exports.sendLoginEmail = void 0;
-const EmailModel_1 = __importDefault(require("../models/EmailModel")); // adjust path if needed
+const EmailModel_1 = __importDefault(require("../models/EmailModel"));
 const email_service_1 = require("../services/email.service");
 const sendLoginEmail = async (req, res) => {
     const { description, email } = req.body;

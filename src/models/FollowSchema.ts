@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, Types } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 export interface IFollow {
     currentUser: string;

@@ -64,7 +64,6 @@ export const downloadPostPDF = async (req:Request, res:Response) => {
 
   await browser.close();
 
-  // ⬇️ No file needed
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
   "Content-Disposition",

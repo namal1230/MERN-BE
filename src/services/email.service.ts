@@ -2,7 +2,6 @@ import { sendMail } from "../utils/Mailer";
 import Email from "../models/EmailModel";
 import Users from "../models/CustomerModel";
 import Phosts from "../models/PhostsModel";
-import { stat } from "node:fs";
 
 interface SendLoginIssueEmailParams {
     email: string;

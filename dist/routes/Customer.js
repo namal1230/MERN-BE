@@ -25,4 +25,5 @@ customerRouter.get("/get-name-info", Auth_1.default, CustomerController_1.getUse
 customerRouter.get("/follow-user", Auth_1.default, CustomerController_1.followUser);
 customerRouter.get("/follow-user-count", Auth_1.default, CustomerController_1.getFollowersCountByName);
 customerRouter.get("/get-following-phosts", Auth_1.default, CustomerController_1.getFollowingPhosts);
+customerRouter.get("/verify-refresh-token", CustomerController_1.getCurrentUser);
 exports.default = customerRouter;

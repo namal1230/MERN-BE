@@ -22,6 +22,7 @@
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.1",
     "cloudinary": "^2.8.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
@@ -35,6 +36,7 @@
     "puppeteer": "^24.34.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.3",
     "@types/nodemailer": "^7.0.4"

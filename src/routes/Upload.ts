@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import { imageUpload, vedioUpload } from "../controllers/UploadController";
 import { upload } from "../middleware/multer";
 import fs from "fs";

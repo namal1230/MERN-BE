@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshAccessToken = exports.getFollowingPhosts = exports.getFollowersCountByName = exports.followUser = exports.getUserInfoByName = exports.getUserInfoByEmail = exports.saveUserInfo = exports.loginCustomer = exports.getCustomer = void 0;
+exports.getCurrentUser = exports.refreshAccessToken = exports.getFollowingPhosts = exports.getFollowersCountByName = exports.followUser = exports.getUserInfoByName = exports.getUserInfoByEmail = exports.saveUserInfo = exports.loginCustomer = exports.getCustomer = void 0;
 const GenerateToken_1 = require("../utils/GenerateToken");
 const CustomerModel_1 = __importDefault(require("../models/CustomerModel"));
 const UserInfo_1 = __importDefault(require("../models/UserInfo"));
@@ -15,6 +15,8 @@ const getCustomer = (req, res) => {
 };
 exports.getCustomer = getCustomer;
 const loginCustomer = async (req, res) => {
+    console.log("Request body:", req.body); // add this
+    console.log("Request headers:", req.headers);
     console.log("trigger");
     try {
         const user = req.body;
@@ -328,6 +330,7 @@ exports.getFollowingPhosts = getFollowingPhosts;
 const refreshAccessToken = async (req, res) => {
     try {
         const refreshTokenFromCookie = req.cookies?.refresh;
+        console.log(refreshTokenFromCookie);
         if (!refreshTokenFromCookie) {
             return res.status(401).json({ message: "No refresh token" });
         }
@@ -355,3 +358,32 @@ const refreshAccessToken = async (req, res) => {
     }
 };
 exports.refreshAccessToken = refreshAccessToken;
+const getCurrentUser = async (req, res) => {
+    try {
+        const refreshToken = req.cookies?.refresh;
+        console.log("Refresh token from cookie:", refreshToken);
+        if (!refreshToken) {
+            return res.status(401).json({ message: "No refresh token" });
+        }
+        const decoded = (0, VerifyRefreshToken_1.verifyRefreshToken)(refreshToken);
+        if (!decoded) {
+            return res.status(403).json({ message: "Invalid refresh token" });
+        }
+        const user = await CustomerModel_1.default.findOne({ refreshToken });
+        if (!user) {
+            return res.status(403).json({ message: "User not found" });
+        }
+        const accessToken = (0, GenerateToken_1.generateToken)({
+            id: user.firebaseUid,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+        });
+        return res.status(200).json({ user, accessToken });
+    }
+    catch (err) {
+        return res.status(500).json({ message: "Failed to fetch user" });
+    }
+};
+exports.getCurrentUser = getCurrentUser;

@@ -14,6 +14,7 @@ const EmailRouter_1 = __importDefault(require("./routes/EmailRouter"));
 const Upload_1 = __importDefault(require("./routes/Upload"));
 const Unspalsh_1 = __importDefault(require("./routes/Unspalsh"));
 const Admin_1 = __importDefault(require("./routes/Admin"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = Number(process.env.PORT) || 3000;
@@ -23,10 +24,11 @@ mongoose_1.default.connect(MONGO_URI).then(() => {
 }).catch((err) => {
     console.error("MongoDB Connection Failed", err);
 });
+app.use((0, cookie_parser_1.default)());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    origin: "https://smart-blog2-47piovg7b-namal-dilmiths-projects.vercel.app",
     credentials: true,
 }));
 app.use("/api/upload", Upload_1.default);

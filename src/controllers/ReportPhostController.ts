@@ -46,8 +46,6 @@ export const reportPhost = async (req: Request, res: Response) => {
             });
         }
 
-        // const reporterEmail = (req as any).user?.email;
-
         if (reporterEmail) {
             const existingReport = await Report.findOne({
                 phostId,

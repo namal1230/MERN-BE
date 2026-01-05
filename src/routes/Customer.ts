@@ -1,5 +1,5 @@
 import express from "express";
-import { refreshAccessToken,getFollowingPhosts,followUser,getFollowersCountByName,getCustomer,loginCustomer,saveUserInfo,getUserInfoByEmail,getUserInfoByName } from "../controllers/CustomerController";
+import { getCurrentUser,refreshAccessToken,getFollowingPhosts,followUser,getFollowersCountByName,getCustomer,loginCustomer,saveUserInfo,getUserInfoByEmail,getUserInfoByName } from "../controllers/CustomerController";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
@@ -30,5 +30,6 @@ customerRouter.get("/get-name-info",AuthVerfication,getUserInfoByName);
 customerRouter.get("/follow-user",AuthVerfication,followUser);
 customerRouter.get("/follow-user-count",AuthVerfication,getFollowersCountByName);
 customerRouter.get("/get-following-phosts",AuthVerfication,getFollowingPhosts);
+customerRouter.get("/verify-refresh-token",getCurrentUser);
 
 export default customerRouter;

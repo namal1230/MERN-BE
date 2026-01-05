@@ -11,6 +11,8 @@ export const getCustomer = (req: Request, res: Response) => {
 }
 
 export const loginCustomer = async (req: Request, res: Response) => {
+    console.log("Request body:", req.body); // add this
+  console.log("Request headers:", req.headers);
   console.log("trigger");
 
   try {
@@ -395,12 +397,13 @@ export const getFollowingPhosts = async (req: Request, res: Response) => {
 export const refreshAccessToken = async (req: Request, res: Response) => {
   try {
     const refreshTokenFromCookie = req.cookies?.refresh;
-
+    console.log(refreshTokenFromCookie);
     if (!refreshTokenFromCookie) {
       return res.status(401).json({ message: "No refresh token" });
     }
 
     const decoded = verifyRefreshToken(refreshTokenFromCookie);
+  
     if (!decoded) {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
@@ -423,5 +426,37 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     });
   } catch (err) {
     return res.status(500).json({ message: "Refresh failed" });
+  }
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies?.refresh;
+    console.log("Refresh token from cookie:", refreshToken);
+    if (!refreshToken) {
+      return res.status(401).json({ message: "No refresh token" });
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    const user = await Users.findOne({ refreshToken });
+    if (!user) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
+    const accessToken = generateToken({
+      id: user.firebaseUid,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    });
+
+    return res.status(200).json({ user, accessToken });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch user" });
   }
 };

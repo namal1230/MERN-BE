@@ -33,7 +33,6 @@ const reportPhost = async (req, res) => {
                 message: "Invalid phostId",
             });
         }
-        // const reporterEmail = (req as any).user?.email;
         if (reporterEmail) {
             const existingReport = await ReportedPhostModel_1.default.findOne({
                 phostId,

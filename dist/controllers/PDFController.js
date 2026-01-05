@@ -54,7 +54,6 @@ const downloadPostPDF = async (req, res) => {
     await page.setContent(html);
     const pdfBuffer = await page.pdf({ format: "A4" });
     await browser.close();
-    // ⬇️ No file needed
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(post.title)}.pdf"`);
     res.send(pdfBuffer);

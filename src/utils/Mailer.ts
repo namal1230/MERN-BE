@@ -13,7 +13,7 @@ const initMailer = async () => {
     },
   });
   await transporter.verify();
-  console.log("✅ Gmail transporter ready");
+  console.log("Gmail transporter ready");
 };
 
 initMailer();

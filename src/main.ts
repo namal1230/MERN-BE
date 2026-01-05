@@ -1,18 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import morgan from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
 import customerRouter from "./routes/Customer";
 import phostsRouter from "./routes/Phosts";
 import emailRouter from "./routes/EmailRouter";
-import { error } from "node:console";
 import uploadRouter from "./routes/Upload";
-import multer from "multer";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
-
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const app = express();
@@ -28,12 +25,12 @@ mongoose.connect(MONGO_URI).then(()=>{
 })
 
 
-
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://smart-blog2-47piovg7b-namal-dilmiths-projects.vercel.app",
     credentials:true,
 }));
 
