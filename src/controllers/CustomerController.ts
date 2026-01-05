@@ -4,6 +4,7 @@ import Users from "../models/CustomerModel";
 import UserInfo from "../models/UserInfo";
 import Follow from "../models/FollowSchema";
 import Phosts, { IBodyBlock } from "../models/PhostsModel";
+import { verifyRefreshToken } from "../utils/VerifyRefreshToken";
 
 export const getCustomer = (req: Request, res: Response) => {
   res.status(200).json("Get Request Customer");
@@ -25,6 +26,10 @@ export const loginCustomer = async (req: Request, res: Response) => {
 
 
     const status = existingUser?.status || "VALID";
+
+    if (existingUser?.status !== "VALID") {
+      return res.status(403).json({ message: "Your Account Has Restricted." });
+    }
 
 
     const token = generateToken({
@@ -50,7 +55,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
           firebaseUid: user.id,
           name: user.name,
           email: user.email,
-          profile:  user.profile || `default-${Date.now()}`,
+          profile: user.profile || `default-${Date.now()}`,
           refreshToken: refresh,
         },
       },
@@ -384,5 +389,39 @@ export const getFollowingPhosts = async (req: Request, res: Response) => {
       success: false,
       message: "Failed to fetch following phosts",
     });
+  }
+};
+
+export const refreshAccessToken = async (req: Request, res: Response) => {
+  try {
+    const refreshTokenFromCookie = req.cookies?.refresh;
+
+    if (!refreshTokenFromCookie) {
+      return res.status(401).json({ message: "No refresh token" });
+    }
+
+    const decoded = verifyRefreshToken(refreshTokenFromCookie);
+    if (!decoded) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    const user = await Users.findOne({ refreshToken: refreshTokenFromCookie });
+    if (!user) {
+      return res.status(403).json({ message: "Refresh token not found" });
+    }
+
+    const newAccessToken = generateToken({
+      id: user.firebaseUid,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    });
+
+    return res.status(200).json({
+      accessToken: newAccessToken,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Refresh failed" });
   }
 };

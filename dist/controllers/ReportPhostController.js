@@ -71,6 +71,7 @@ const reportPhost = async (req, res) => {
 exports.reportPhost = reportPhost;
 const getReportedPhostById = async (req, res) => {
     const { id } = req.query;
+    console.log("trigger email");
     if (!id || typeof id !== "string" || !mongoose_1.default.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
             success: false,

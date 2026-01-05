@@ -3,6 +3,7 @@ import { getImages } from "../controllers/ImageController";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
+import AuthVerfication from "../middleware/Auth";
 
 const unsplash = express.Router();
 
@@ -20,6 +21,6 @@ const accessLogStream = fs.createWriteStream(
 
 unsplash.use(morgan("tiny", { stream: accessLogStream }));
 
-unsplash.get("/search", getImages);
+unsplash.get("/search",AuthVerfication, getImages);
 
 export default unsplash;

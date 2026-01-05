@@ -3,21 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendReportEmailAdmin = exports.sendLoginResponse = exports.sendReactionEmails = exports.sendLoginEmails = void 0;
+exports.sendRejectedAccount = exports.sendReportEmailAdmin = exports.sendLoginResponse = exports.sendReactionEmails = exports.sendLoginEmails = void 0;
 const Mailer_1 = require("../utils/Mailer");
-const EmailModel_1 = __importDefault(require("../models/EmailModel")); // adjust path if needed
+const EmailModel_1 = __importDefault(require("../models/EmailModel"));
 const CustomerModel_1 = __importDefault(require("../models/CustomerModel"));
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
-// export const handleLoginIssueEmail = async ({
-//   email,
-//   description
-// }: SendLoginIssueEmailParams) => {
-//     const info = await sendMail(
-//         "dilmithqwe@gmail.com", 
-//         "User Login Issue", 
-//         `${description}\n\nFrom: ${email}`
-//     );
-// };
 const sendLoginEmails = async ({ email, description, status }) => {
     const normalizedEmail = email.trim().toLowerCase();
     if (status == "login-issue") {
@@ -87,3 +77,8 @@ const sendReportEmailAdmin = async ({ phostId, reporterEmail, reportType, reason
     await (0, Mailer_1.sendMail)("namaldilmith2@gmail.com", "New Report Received", adminMessage);
 };
 exports.sendReportEmailAdmin = sendReportEmailAdmin;
+const sendRejectedAccount = async ({ email, description }) => {
+    await (0, Mailer_1.sendMail)(email, "Admin Rejected Your Account", description);
+    return true;
+};
+exports.sendRejectedAccount = sendRejectedAccount;

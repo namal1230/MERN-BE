@@ -1,8 +1,5 @@
 import axios, { AxiosInstance } from "axios";
 
-/**
- * Axios instance for Unsplash API
- */
 const unsplash: AxiosInstance = axios.create({
   baseURL: "https://api.unsplash.com",
   headers: {
@@ -10,9 +7,6 @@ const unsplash: AxiosInstance = axios.create({
   },
 });
 
-/**
- * Unsplash image type (minimal – extend if needed)
- */
 export interface UnsplashImage {
   id: string;
   description: string | null;
@@ -30,18 +24,12 @@ export interface UnsplashImage {
   };
 }
 
-/**
- * Unsplash search response type
- */
 export interface UnsplashSearchResponse {
   total: number;
   total_pages: number;
   results: UnsplashImage[];
 }
 
-/**
- * Search images from Unsplash
- */
 export const searchImages = async (
   query: string,
   page: number = 1

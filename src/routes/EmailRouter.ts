@@ -3,6 +3,7 @@ import { sendLoginEmail,getEmails } from "../controllers/EmailController";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
+import AuthVerfication from "../middleware/Auth";
 
 const emailRouter = express.Router();
 
@@ -22,7 +23,7 @@ emailRouter.use(morgan("tiny", { stream: accessLogStream }));
 
 
 
-emailRouter.post("/send", sendLoginEmail);
-emailRouter.get("/get", getEmails);
+emailRouter.post("/send",AuthVerfication, sendLoginEmail);
+emailRouter.get("/get",AuthVerfication, getEmails);
 
 export default emailRouter;

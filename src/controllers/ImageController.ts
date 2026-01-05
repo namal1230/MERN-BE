@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import { searchImages } from "../services/unsplash.service";
 
-/**
- * GET /api/images?q=car&page=1
- */
 export const getImages = async (
   req: Request,
   res: Response

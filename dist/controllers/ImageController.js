@@ -2,9 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getImages = void 0;
 const unsplash_service_1 = require("../services/unsplash.service");
-/**
- * GET /api/images?q=car&page=1
- */
 const getImages = async (req, res) => {
     try {
         const { q, page } = req.query;

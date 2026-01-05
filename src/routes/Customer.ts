@@ -1,8 +1,9 @@
 import express from "express";
-import { getFollowingPhosts,followUser,getFollowersCountByName,getCustomer,loginCustomer,saveUserInfo,getUserInfoByEmail,getUserInfoByName } from "../controllers/CustomerController";
+import { refreshAccessToken,getFollowingPhosts,followUser,getFollowersCountByName,getCustomer,loginCustomer,saveUserInfo,getUserInfoByEmail,getUserInfoByName } from "../controllers/CustomerController";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
+import AuthVerfication from "../middleware/Auth";
 
 const customerRouter = express.Router();
 
@@ -20,13 +21,14 @@ const accessLogStream = fs.createWriteStream(
 
 customerRouter.use(morgan("tiny", { stream: accessLogStream }));
 
-customerRouter.get("/get-customer",getCustomer);
+customerRouter.get("/get-customer",AuthVerfication,getCustomer);
 customerRouter.post("/login-customer",loginCustomer);
-customerRouter.post("/save-info",saveUserInfo);
-customerRouter.get("/get-info",getUserInfoByEmail);
-customerRouter.get("/get-name-info",getUserInfoByName);
-customerRouter.get("/follow-user",followUser);
-customerRouter.get("/follow-user-count",getFollowersCountByName);
-customerRouter.get("/get-following-phosts",getFollowingPhosts);
+customerRouter.get("/refresh-token",refreshAccessToken);
+customerRouter.post("/save-info",AuthVerfication,saveUserInfo);
+customerRouter.get("/get-info",AuthVerfication,getUserInfoByEmail);
+customerRouter.get("/get-name-info",AuthVerfication,getUserInfoByName);
+customerRouter.get("/follow-user",AuthVerfication,followUser);
+customerRouter.get("/follow-user-count",AuthVerfication,getFollowersCountByName);
+customerRouter.get("/get-following-phosts",AuthVerfication,getFollowingPhosts);
 
 export default customerRouter;

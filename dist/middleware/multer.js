@@ -7,5 +7,5 @@ exports.upload = void 0;
 const multer_1 = __importDefault(require("multer"));
 const storage = multer_1.default.memoryStorage();
 exports.upload = (0, multer_1.default)({ storage, limits: {
-        fileSize: 200 * 1024 * 1024, // 200MB
+        fileSize: 200 * 1024 * 1024,
     }, });

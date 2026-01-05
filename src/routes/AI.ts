@@ -3,6 +3,7 @@ import { generateImage } from "../controllers/AIController";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
+import AuthVerfication from "../middleware/Auth";
 
 const AIRouter = Router();
 
@@ -21,6 +22,6 @@ const accessLogStream = fs.createWriteStream(
 AIRouter.use(morgan("tiny", { stream: accessLogStream }));
 
 
-AIRouter.post("/generate-image", generateImage);
+AIRouter.post("/generate-image",AuthVerfication, generateImage);
 
 export default AIRouter;

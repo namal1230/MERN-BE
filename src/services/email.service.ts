@@ -1,5 +1,5 @@
 import { sendMail } from "../utils/Mailer";
-import Email from "../models/EmailModel"; // adjust path if needed
+import Email from "../models/EmailModel";
 import Users from "../models/CustomerModel";
 import Phosts from "../models/PhostsModel";
 import { stat } from "node:fs";
@@ -27,16 +27,6 @@ interface ReportEmail {
     frequency: string;
 }
 
-// export const handleLoginIssueEmail = async ({
-//   email,
-//   description
-// }: SendLoginIssueEmailParams) => {
-//     const info = await sendMail(
-//         "dilmithqwe@gmail.com", 
-//         "User Login Issue", 
-//         `${description}\n\nFrom: ${email}`
-//     );
-// };
 
 export const sendLoginEmails = async ({ email,
     description, status }: SendLoginIssueEmailParams) => {
@@ -144,3 +134,10 @@ export const sendReportEmailAdmin = async ({ phostId, reporterEmail, reportType,
         adminMessage
     );
 }
+
+export const sendRejectedAccount = async ({ email, description }: SendLoginIssueEmailParams) => {
+
+    await sendMail(email, "Admin Rejected Your Account", description);
+
+    return true;
+};

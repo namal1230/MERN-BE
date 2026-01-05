@@ -1,13 +1,12 @@
 import nodemailer from "nodemailer";
 
-// Create transporter at module level
 let transporter: nodemailer.Transporter;
 
 const initMailer = async () => {
   transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // true for 465
+    secure: false,
     auth: {
       user: "namaldilmith2@gmail.com",
       pass: "dwgceokezsfuaath",
@@ -17,9 +16,8 @@ const initMailer = async () => {
   console.log("✅ Gmail transporter ready");
 };
 
-initMailer(); // Initialize transporter
+initMailer();
 
-// Send email function
 export const sendMail = async (to: string, subject: string, text: string, html?: string) => {
   if (!transporter) {
     throw new Error("Transporter not initialized yet");

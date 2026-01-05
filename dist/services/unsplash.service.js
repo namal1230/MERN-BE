@@ -5,18 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchImages = void 0;
 const axios_1 = __importDefault(require("axios"));
-/**
- * Axios instance for Unsplash API
- */
 const unsplash = axios_1.default.create({
     baseURL: "https://api.unsplash.com",
     headers: {
         Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}`,
     },
 });
-/**
- * Search images from Unsplash
- */
 const searchImages = async (query, page = 1) => {
     const res = await unsplash.get("/search/photos", {
         params: {

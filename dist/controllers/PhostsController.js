@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setNotificationStatus = exports.getUserReactions = exports.searchPhosts = exports.getReactionsStats = exports.saveReaction = exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.deactivateReportedPhost = exports.getReportByPhostId = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
+exports.setNotificationStatus = exports.getUserReactions = exports.searchPhosts = exports.getReactionsStats = exports.saveReaction = exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getPhostById = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.deactivateReportedPhost = exports.getReportByPhostId = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const email_service_1 = require("../services/email.service");
@@ -290,8 +290,41 @@ const getAllPendingPhosts = async (req, res) => {
     }
 };
 exports.getAllPendingPhosts = getAllPendingPhosts;
+const getPhostById = async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id || typeof id !== "string") {
+            return res.status(400).json({
+                message: "phost id is required"
+            });
+        }
+        if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "invalid phost id"
+            });
+        }
+        const phost = await PhostsModel_1.default.findById(id);
+        if (!phost) {
+            return res.status(404).json({
+                message: "phost not found"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            data: phost
+        });
+    }
+    catch (error) {
+        console.error("Get phost error:", error);
+        return res.status(500).json({
+            message: "internal server error"
+        });
+    }
+};
+exports.getPhostById = getPhostById;
 const publishPhost = async (req, res) => {
     const { id } = req.query;
+    console.log("trigger phost");
     if (!id || typeof id !== "string") {
         return res.status(400).json({ message: "Valid phost id is required" });
     }

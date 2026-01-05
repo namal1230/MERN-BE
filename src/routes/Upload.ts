@@ -4,6 +4,7 @@ import { upload } from "../middleware/multer";
 import fs from "fs";
 import path from "path";
 import morgan from "morgan";
+import AuthVerfication from "../middleware/Auth";
 
 const uploadRouter = express.Router();
 
@@ -21,7 +22,7 @@ const accessLogStream = fs.createWriteStream(
 
 uploadRouter.use(morgan("tiny", { stream: accessLogStream }));
 
-uploadRouter.post("/image", upload.single("image"), imageUpload);
-uploadRouter.post("/video", upload.single("vedio"), vedioUpload);
+uploadRouter.post("/image",AuthVerfication, upload.single("image"), imageUpload);
+uploadRouter.post("/video",AuthVerfication, upload.single("vedio"), vedioUpload);
 
 export default uploadRouter;

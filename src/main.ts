@@ -10,7 +10,6 @@ import emailRouter from "./routes/EmailRouter";
 import { error } from "node:console";
 import uploadRouter from "./routes/Upload";
 import multer from "multer";
-// import imageRoutes from "./routes/AI";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
 
@@ -32,13 +31,17 @@ mongoose.connect(MONGO_URI).then(()=>{
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
-app.use(cors());
+
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true,
+}));
+
 app.use("/api/upload",uploadRouter);
 app.use("/email", emailRouter);
 app.use("/customer",customerRouter);
 app.use("/admin",adminRouter);
 app.use("/phosts",phostsRouter);
-// app.use("/api", imageRoutes);
 app.use("/api/images", imageRoutes);
 
 app.listen(PORT,()=>{

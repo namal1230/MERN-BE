@@ -339,9 +339,45 @@ export const getAllPendingPhosts = async (req: Request, res: Response) => {
   }
 }
 
+export const getPhostById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.query;
+
+    if (!id || typeof id !== "string") {
+      return res.status(400).json({
+        message: "phost id is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "invalid phost id"
+      });
+    }
+    const phost = await Phosts.findById(id);
+
+    if (!phost) {
+      return res.status(404).json({
+        message: "phost not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: phost
+    });
+
+  } catch (error) {
+    console.error("Get phost error:", error);
+    return res.status(500).json({
+      message: "internal server error"
+    });
+  }
+};
+
 export const publishPhost = async (req: Request, res: Response) => {
   const { id } = req.query;
-
+  console.log("trigger phost");
   if (!id || typeof id !== "string") {
     return res.status(400).json({ message: "Valid phost id is required" });
   }

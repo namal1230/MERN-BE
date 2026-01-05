@@ -12,7 +12,6 @@ const Customer_1 = __importDefault(require("./routes/Customer"));
 const Phosts_1 = __importDefault(require("./routes/Phosts"));
 const EmailRouter_1 = __importDefault(require("./routes/EmailRouter"));
 const Upload_1 = __importDefault(require("./routes/Upload"));
-// import imageRoutes from "./routes/AI";
 const Unspalsh_1 = __importDefault(require("./routes/Unspalsh"));
 const Admin_1 = __importDefault(require("./routes/Admin"));
 dotenv_1.default.config();
@@ -26,13 +25,15 @@ mongoose_1.default.connect(MONGO_URI).then(() => {
 });
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 app.use("/api/upload", Upload_1.default);
 app.use("/email", EmailRouter_1.default);
 app.use("/customer", Customer_1.default);
 app.use("/admin", Admin_1.default);
 app.use("/phosts", Phosts_1.default);
-// app.use("/api", imageRoutes);
 app.use("/api/images", Unspalsh_1.default);
 app.listen(PORT, () => {
     console.log(`Listening in port ${PORT}`);

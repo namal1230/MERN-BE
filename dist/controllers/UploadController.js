@@ -35,7 +35,7 @@ const vedioUpload = async (req, res) => {
             cloudinary_1.default.uploader.upload_stream({
                 resource_type: "video",
                 folder: "blog-videos",
-                chunk_size: 6_000_000, // 6MB chunks (recommended)
+                chunk_size: 6_000_000,
             }, (error, result) => {
                 if (error)
                     reject(error);

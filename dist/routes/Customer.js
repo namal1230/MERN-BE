@@ -8,6 +8,7 @@ const CustomerController_1 = require("../controllers/CustomerController");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const morgan_1 = __importDefault(require("morgan"));
+const Auth_1 = __importDefault(require("../middleware/Auth"));
 const customerRouter = express_1.default.Router();
 const LOG_DIR = path_1.default.join(process.cwd(), "logs");
 if (!fs_1.default.existsSync(LOG_DIR)) {
@@ -15,12 +16,13 @@ if (!fs_1.default.existsSync(LOG_DIR)) {
 }
 const accessLogStream = fs_1.default.createWriteStream(path_1.default.join(LOG_DIR, "customer.log"), { flags: "a" });
 customerRouter.use((0, morgan_1.default)("tiny", { stream: accessLogStream }));
-customerRouter.get("/get-customer", CustomerController_1.getCustomer);
+customerRouter.get("/get-customer", Auth_1.default, CustomerController_1.getCustomer);
 customerRouter.post("/login-customer", CustomerController_1.loginCustomer);
-customerRouter.post("/save-info", CustomerController_1.saveUserInfo);
-customerRouter.get("/get-info", CustomerController_1.getUserInfoByEmail);
-customerRouter.get("/get-name-info", CustomerController_1.getUserInfoByName);
-customerRouter.get("/follow-user", CustomerController_1.followUser);
-customerRouter.get("/follow-user-count", CustomerController_1.getFollowersCountByName);
-customerRouter.get("/get-following-phosts", CustomerController_1.getFollowingPhosts);
+customerRouter.get("/refresh-token", CustomerController_1.refreshAccessToken);
+customerRouter.post("/save-info", Auth_1.default, CustomerController_1.saveUserInfo);
+customerRouter.get("/get-info", Auth_1.default, CustomerController_1.getUserInfoByEmail);
+customerRouter.get("/get-name-info", Auth_1.default, CustomerController_1.getUserInfoByName);
+customerRouter.get("/follow-user", Auth_1.default, CustomerController_1.followUser);
+customerRouter.get("/follow-user-count", Auth_1.default, CustomerController_1.getFollowersCountByName);
+customerRouter.get("/get-following-phosts", Auth_1.default, CustomerController_1.getFollowingPhosts);
 exports.default = customerRouter;

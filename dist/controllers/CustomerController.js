@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFollowingPhosts = exports.getFollowersCountByName = exports.followUser = exports.getUserInfoByName = exports.getUserInfoByEmail = exports.saveUserInfo = exports.loginCustomer = exports.getCustomer = void 0;
+exports.refreshAccessToken = exports.getFollowingPhosts = exports.getFollowersCountByName = exports.followUser = exports.getUserInfoByName = exports.getUserInfoByEmail = exports.saveUserInfo = exports.loginCustomer = exports.getCustomer = void 0;
 const GenerateToken_1 = require("../utils/GenerateToken");
 const CustomerModel_1 = __importDefault(require("../models/CustomerModel"));
 const UserInfo_1 = __importDefault(require("../models/UserInfo"));
 const FollowSchema_1 = __importDefault(require("../models/FollowSchema"));
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
+const VerifyRefreshToken_1 = require("../utils/VerifyRefreshToken");
 const getCustomer = (req, res) => {
     res.status(200).json("Get Request Customer");
 };
@@ -23,6 +24,9 @@ const loginCustomer = async (req, res) => {
         const existingUser = await CustomerModel_1.default.findOne({ firebaseUid: user.id });
         const role = existingUser?.role || "user";
         const status = existingUser?.status || "VALID";
+        if (existingUser?.status !== "VALID") {
+            return res.status(403).json({ message: "Your Account Has Restricted." });
+        }
         const token = (0, GenerateToken_1.generateToken)({
             id: user.id,
             name: user.name,
@@ -321,3 +325,33 @@ const getFollowingPhosts = async (req, res) => {
     }
 };
 exports.getFollowingPhosts = getFollowingPhosts;
+const refreshAccessToken = async (req, res) => {
+    try {
+        const refreshTokenFromCookie = req.cookies?.refresh;
+        if (!refreshTokenFromCookie) {
+            return res.status(401).json({ message: "No refresh token" });
+        }
+        const decoded = (0, VerifyRefreshToken_1.verifyRefreshToken)(refreshTokenFromCookie);
+        if (!decoded) {
+            return res.status(403).json({ message: "Invalid refresh token" });
+        }
+        const user = await CustomerModel_1.default.findOne({ refreshToken: refreshTokenFromCookie });
+        if (!user) {
+            return res.status(403).json({ message: "Refresh token not found" });
+        }
+        const newAccessToken = (0, GenerateToken_1.generateToken)({
+            id: user.firebaseUid,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+        });
+        return res.status(200).json({
+            accessToken: newAccessToken,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({ message: "Refresh failed" });
+    }
+};
+exports.refreshAccessToken = refreshAccessToken;
