@@ -1476,3 +1476,4 @@ GET /customer/refresh-token 304 - - 86.314 ms
 GET /customer/refresh-token 304 - - 75.429 ms
 GET /customer/verify-refresh-token 401 30 - 21.204 ms
 POST /customer/login-customer 200 583 - 290.295 ms
+POST /customer/login-customer 200 583 - 271.408 ms
