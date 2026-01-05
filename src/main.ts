@@ -19,17 +19,6 @@ app.use(cookieParser());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 
-
-
-mongoose.connect(MONGO_URI).then(()=>{
-    console.log("MONGODB connected successfully")
-}).catch((err)=>{
-    console.error("MongoDB Connection Failed", err)
-})
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}))
-
 app.use(cors({
     origin:"https://smart-blog-eosin.vercel.app",
     credentials:true,
@@ -47,6 +36,16 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+mongoose.connect(MONGO_URI).then(()=>{
+    console.log("MONGODB connected successfully")
+}).catch((err)=>{
+    console.error("MongoDB Connection Failed", err)
+})
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}))
+
 
 
 app.use("/api/upload",uploadRouter);

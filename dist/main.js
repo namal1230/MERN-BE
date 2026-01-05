@@ -20,13 +20,6 @@ const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
-mongoose_1.default.connect(MONGO_URI).then(() => {
-    console.log("MONGODB connected successfully");
-}).catch((err) => {
-    console.error("MongoDB Connection Failed", err);
-});
-app.use(body_parser_1.default.json());
-app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
     origin: "https://smart-blog-eosin.vercel.app",
     credentials: true,
@@ -37,6 +30,13 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     next();
 });
+mongoose_1.default.connect(MONGO_URI).then(() => {
+    console.log("MONGODB connected successfully");
+}).catch((err) => {
+    console.error("MongoDB Connection Failed", err);
+});
+app.use(body_parser_1.default.json());
+app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use("/api/upload", Upload_1.default);
 app.use("/email", EmailRouter_1.default);
 app.use("/customer", Customer_1.default);
