@@ -19,17 +19,13 @@ app.use(cookieParser());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 
-app.options("*", cors({
-  origin: "https://blog-phost3.vercel.app",
-  credentials: true
-}));
-
 
 app.use(cors({
     origin:"https://blog-phost3.vercel.app",
     credentials:true,
 }));
 
+app.options("*", cors());
 
 mongoose.connect(MONGO_URI).then(()=>{
     console.log("MONGODB connected successfully")
