@@ -28,7 +28,7 @@ mongoose_1.default.connect(MONGO_URI).then(() => {
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: "https://blog-phost3.vercel.app/",
+    origin: "https://smart-blog-eosin.vercel.app/",
     credentials: true,
 }));
 app.use("/api/upload", Upload_1.default);

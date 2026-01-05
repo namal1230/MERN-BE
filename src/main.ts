@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
 app.use(cors({
-    origin:"https://blog-phost3.vercel.app/",
+    origin:"https://smart-blog-eosin.vercel.app/",
     credentials:true,
 }));
 

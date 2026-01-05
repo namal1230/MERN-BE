@@ -1610,3 +1610,4 @@ GET /customer/follow-user-count?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 304 - 
 GET /customer/get-name-info?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 304 - - 122.209 ms
 GET /customer/follow-user-count?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 304 - - 149.897 ms
 GET /customer/verify-refresh-token 401 30 - 8.287 ms
+GET /customer/verify-refresh-token 401 30 - 7.399 ms
