@@ -10,6 +10,7 @@ import uploadRouter from "./routes/Upload";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
 import cookieParser from "cookie-parser";
+import ErrorHandling from "./middleware/ErrorHAndling";
 
 dotenv.config();
 
@@ -47,6 +48,8 @@ app.use("/customer",customerRouter);
 app.use("/admin",adminRouter);
 app.use("/phosts",phostsRouter);
 app.use("/api/images", imageRoutes);
+
+app.use(ErrorHandling);
 
 app.listen(PORT,()=>{
     console.log(`Listening in port ${PORT}`)
