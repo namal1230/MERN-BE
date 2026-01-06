@@ -56,7 +56,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
     res.cookie("refresh", refresh, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+      sameSite: "none",path:"/"
     });
 
     res.status(200).json({
