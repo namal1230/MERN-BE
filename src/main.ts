@@ -27,6 +27,8 @@ app.use(cors({
     credentials:true,
 }));
 
+app.options("*",cors());
+
 
 mongoose.connect(MONGO_URI).then(()=>{
     console.log("MONGODB connected successfully")
