@@ -10,6 +10,7 @@ import uploadRouter from "./routes/Upload";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
 import cookieParser from "cookie-parser";
+import CorsPolicy from "./middleware/Cors";
 
 dotenv.config();
 
@@ -33,7 +34,7 @@ mongoose.connect(MONGO_URI).then(()=>{
 }).catch((err)=>{
     console.error("MongoDB Connection Failed", err)
 })
-
+app.use(CorsPolicy);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
