@@ -10,7 +10,6 @@ import uploadRouter from "./routes/Upload";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
 import cookieParser from "cookie-parser";
-import CorsPolicy from "./middleware/Cors";
 
 dotenv.config();
 
@@ -26,6 +25,8 @@ app.use(cors({
     methods:["GET","POST","PUT","DELETE","PATCH","OPTIONS"],
     allowedHeaders:["Content-Type","Authorization"],
     credentials:true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
 }));
 
 
@@ -34,7 +35,7 @@ mongoose.connect(MONGO_URI).then(()=>{
 }).catch((err)=>{
     console.error("MongoDB Connection Failed", err)
 })
-app.use(CorsPolicy);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
