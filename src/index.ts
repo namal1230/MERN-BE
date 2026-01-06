@@ -40,6 +40,8 @@ mongoose.connect(MONGO_URI).then(()=>{
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 
+app.get("/ping", (req, res) => res.json({ status: "ok" }));
+
 
 
 app.use("/api/upload",uploadRouter);
