@@ -18,6 +18,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
     }
 
     const token = generateToken(user);
+   
     const refresh = refreshTokens(user);
 
     const updatedUser = await Users.findOneAndUpdate(
@@ -56,7 +57,7 @@ export const loginCustomer = async (req: Request, res: Response) => {
     res.cookie("refresh", refresh, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",path:"/"
+      sameSite: "none",
     });
 
     res.status(200).json({

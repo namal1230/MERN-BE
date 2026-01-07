@@ -1,58 +1,93 @@
 import express from "express";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+
 import customerRouter from "./routes/Customer";
 import phostsRouter from "./routes/Phosts";
 import emailRouter from "./routes/EmailRouter";
 import uploadRouter from "./routes/Upload";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
-import cookieParser from "cookie-parser";
 import ErrorHandling from "./middleware/ErrorHAndling";
 
 dotenv.config();
 
 const app = express();
-
-app.use(cookieParser());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 
+/* =======================
+   CORS CONFIG (CRITICAL)
+======================= */
 
-app.use(cors({
-    origin:"https://smart-blog-dev.vercel.app",
-    methods:["GET","POST","PUT","DELETE","PATCH","OPTIONS"],
-    allowedHeaders:["Content-Type","Authorization"],
-    credentials:true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-}));
+const allowedOrigins = [
+  "https://smart-blog-dev.vercel.app",
+  "http://localhost:5173",
+];
 
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow server-to-server or Postman
+      if (!origin) return callback(null, true);
 
-mongoose.connect(MONGO_URI).then(()=>{
-    console.log("MONGODB connected successfully")
-}).catch((err)=>{
-    console.error("MongoDB Connection Failed", err)
-})
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}))
+// 🔥 REQUIRED for preflight
+app.options("*", cors());
+
+/* =======================
+   MIDDLEWARE
+======================= */
+
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* =======================
+   DB
+======================= */
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.error("MongoDB connection failed", err));
+
+/* =======================
+   ROUTES
+======================= */
 
 app.get("/ping", (req, res) => res.json({ status: "ok" }));
 
-
-
-app.use("/api/upload",uploadRouter);
+app.use("/api/upload", uploadRouter);
 app.use("/email", emailRouter);
-app.use("/customer",customerRouter);
-app.use("/admin",adminRouter);
-app.use("/phosts",phostsRouter);
+app.use("/customer", customerRouter);
+app.use("/admin", adminRouter);
+app.use("/phosts", phostsRouter);
 app.use("/api/images", imageRoutes);
+
+/* =======================
+   ERROR HANDLER
+======================= */
 
 app.use(ErrorHandling);
 
-app.listen(PORT,()=>{
-    console.log(`Listening in port ${PORT}`)
-})
+/* =======================
+   START
+======================= */
+
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
+});

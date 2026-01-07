@@ -20,6 +20,7 @@ export const generateToken = (users:user)=>{
         status: users.status,
     },String(secret),{expiresIn:"5s"})
 
+
 }
 
 export const refreshTokens = (users:user)=>{
