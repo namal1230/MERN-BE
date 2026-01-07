@@ -46,15 +46,22 @@ app.use(
 );
 
 // 🔥 REQUIRED for preflight
+app.use(cors({ origin: true, credentials: true }));
 app.options("*", cors());
 
-/* =======================
-   MIDDLEWARE
-======================= */
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ROUTES HERE
+
+app.use(ErrorHandling);
+
 
 /* =======================
    DB
