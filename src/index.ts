@@ -47,7 +47,7 @@ app.use(
 
 // 🔥 REQUIRED for preflight
 app.use(cors({ origin: true, credentials: true }));
-app.options("*", cors());
+// app.options("*", cors());
 
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.sendStatus(204);
