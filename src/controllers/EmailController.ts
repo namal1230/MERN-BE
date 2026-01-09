@@ -17,9 +17,14 @@ export const sendLoginEmail = async (req: Request, res: Response) => {
       message: "Email sent successfully",
       data: emailSender
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to send email" });
+  } catch (error:any) {
+   console.error("sendLoginEmail controller error:");
+  console.error(error?.message);
+  console.error(error?.stack);
+
+  res.status(500).json({
+    error: error?.message || "Failed to send email",
+  });
   }
 };
 
