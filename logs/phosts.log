@@ -1175,3 +1175,12 @@ GET /phosts/get-report-email?id=6954c677d5ee55bfbc755de1 304 - - 89.530 ms
 GET /phosts/get-report-email?id=6954c677d5ee55bfbc755de1 304 - - 79.767 ms
 GET /phosts/get-report-email?id=6954c677d5ee55bfbc755de1 304 - - 102.066 ms
 GET /phosts/get-report-email?id=6954c677d5ee55bfbc755de1 304 - - 94.331 ms
+GET /phosts/get-all-pending 403 38 - 2.774 ms
+GET /phosts/get-all-report 403 38 - 2.513 ms
+GET /phosts/get-all-pending 500 25 - 15.790 ms
+GET /phosts/get-all-pending 500 25 - 3.938 ms
+GET /phosts/get-all-report 500 25 - 2.622 ms
+GET /phosts/get-all-pending 200 36 - 86.200 ms
+GET /phosts/get-all-report 200 612 - 147.561 ms
+GET /phosts/get-all-pending 304 - - 108.190 ms
+GET /phosts/get-report-email?id=6954c677d5ee55bfbc755de1 200 363 - 112.362 ms

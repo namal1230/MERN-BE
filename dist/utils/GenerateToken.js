@@ -13,7 +13,7 @@ const generateToken = (users) => {
         email: users.email,
         role: users.role,
         status: users.status,
-    }, String(secret), { expiresIn: "5s" });
+    }, String(secret), { expiresIn: "15m" });
 };
 exports.generateToken = generateToken;
 const refreshTokens = (users) => {

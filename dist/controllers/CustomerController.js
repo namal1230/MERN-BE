@@ -49,7 +49,7 @@ const loginCustomer = async (req, res) => {
         res.cookie("refresh", refresh, {
             httpOnly: true,
             secure: true,
-            sameSite: "none", path: "/"
+            sameSite: "none",
         });
         res.status(200).json({
             message: "Customer login success",
@@ -300,6 +300,7 @@ const getFollowingPhosts = async (req, res) => {
 };
 exports.getFollowingPhosts = getFollowingPhosts;
 const refreshAccessToken = async (req, res) => {
+    console.log("Request catched..");
     try {
         const refreshTokenFromCookie = req.cookies?.refresh;
         console.log(exports.refreshAccessToken);

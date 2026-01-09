@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { log } from "node:console";
 
 const AuthVerfication = (req: Request, resp: Response, next: NextFunction) => {
 
@@ -8,18 +9,33 @@ const AuthVerfication = (req: Request, resp: Response, next: NextFunction) => {
     console.log("Headers:", req.headers);
 
     if (!auth || !auth.startsWith("Bearer ")) {
-        resp.status(401).json("Not Verfied Authentication");
+        return resp.status(401).json("Not Verfied Authentication");
     }
 
+    console.log("Now checked hraders..")
+
     const token = auth?.split(" ")[1];
+
+    console.log("token");
 
     if (!token) {
         return resp.status(401).json({ message: "Token missing" });
     }
 
-    jwt.verify(token, process.env.SECRET_CODE as string);
-
-    next();
+    console.log("now token is verified")
+    try {
+        const decoded = jwt.verify(
+            token,
+            process.env.SECRET_CODE as string
+        );
+        console.log("Now coorect decoded.."+decoded);
+        (req as any).user = decoded;
+        next();
+    } catch (err) {
+        return resp.status(403).json({
+            message: "Invalid or expired token"
+        });
+    }
 }
 
 export default AuthVerfication;

@@ -15,16 +15,20 @@ const Upload_1 = __importDefault(require("./routes/Upload"));
 const Unspalsh_1 = __importDefault(require("./routes/Unspalsh"));
 const Admin_1 = __importDefault(require("./routes/Admin"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const ErrorHAndling_1 = __importDefault(require("./middleware/ErrorHAndling"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 app.use((0, cors_1.default)({
-    origin: "https://blog-phost3.vercel.app",
+    origin: ["https://smart-blog-dev.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
 }));
-app.options("*", (0, cors_1.default)());
 mongoose_1.default.connect(MONGO_URI).then(() => {
     console.log("MONGODB connected successfully");
 }).catch((err) => {
@@ -32,12 +36,14 @@ mongoose_1.default.connect(MONGO_URI).then(() => {
 });
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
+app.get("/ping", (req, res) => res.json({ status: "ok" }));
 app.use("/api/upload", Upload_1.default);
 app.use("/email", EmailRouter_1.default);
 app.use("/customer", Customer_1.default);
 app.use("/admin", Admin_1.default);
 app.use("/phosts", Phosts_1.default);
 app.use("/api/images", Unspalsh_1.default);
-app.listen(PORT, () => {
+app.use(ErrorHAndling_1.default);
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Listening in port ${PORT}`);
 });

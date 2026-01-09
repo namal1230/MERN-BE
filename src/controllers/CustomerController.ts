@@ -357,6 +357,7 @@ export const getFollowingPhosts = async (req: Request, res: Response) => {
 };
 
 export const refreshAccessToken = async (req: Request, res: Response) => {
+  console.log("Request catched..");
   try {
     const refreshTokenFromCookie = req.cookies?.refresh;
     console.log(refreshAccessToken);
