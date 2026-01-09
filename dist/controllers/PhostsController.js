@@ -367,15 +367,7 @@ const rejectPhost = async (req, res) => {
         return res.status(400).json({ message: "Invalid report id" });
     }
     try {
-        const reported = await ReportedPhostModel_1.default.findById(id);
-        if (!reported) {
-            return res.status(404).json({ message: "Reported phost not found" });
-        }
-        const phostId = reported.phostId;
-        if (!mongoose_1.default.Types.ObjectId.isValid(phostId)) {
-            return res.status(400).json({ message: "Invalid phost id in report" });
-        }
-        const phost = await PhostsModel_1.default.findByIdAndUpdate(phostId, { status: "archived" }, { new: true });
+        const phost = await PhostsModel_1.default.findByIdAndUpdate(id, { status: "archived" }, { new: true });
         if (!phost) {
             return res.status(404).json({ message: "Phost not found" });
         }
@@ -384,10 +376,6 @@ const rejectPhost = async (req, res) => {
         const description = phost.title;
         if (email && description) {
             await (0, email_service_1.sendLoginEmails)({ email, description, status });
-        }
-        const reporteds = await ReportedPhostModel_1.default.findByIdAndUpdate(id, { status: false }, { new: true });
-        if (!reporteds) {
-            return res.status(404).json({ message: "Reported phost not found" });
         }
         res.status(200).json({
             success: true,

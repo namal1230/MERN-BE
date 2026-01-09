@@ -1703,3 +1703,17 @@ GET /customer/verify-refresh-token 200 956 - 72.303 ms
 GET /customer/refresh-token 200 313 - 88.340 ms
 GET /customer/get-name-info?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 304 - - 132.716 ms
 GET /customer/follow-user-count?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 200 53 - 166.758 ms
+GET /customer/verify-refresh-token 403 28 - 179.394 ms
+GET /customer/verify-refresh-token 403 28 - 83.851 ms
+GET /customer/verify-refresh-token 403 28 - 95.974 ms
+GET /customer/verify-refresh-token 403 28 - 65.669 ms
+POST /customer/login-customer 200 945 - 252.789 ms
+GET /customer/verify-refresh-token 200 963 - 101.567 ms
+POST /customer/login-customer 200 945 - 176.251 ms
+GET /customer/refresh-token 200 317 - 83.306 ms
+GET /customer/verify-refresh-token 200 963 - 3617.159 ms
+POST /customer/login-customer 200 945 - 150.346 ms
+GET /customer/refresh-token 200 317 - 100.043 ms
+GET /customer/verify-refresh-token 200 963 - 1526.219 ms
+POST /customer/login-customer 200 945 - 169.630 ms
+GET /customer/refresh-token 200 317 - 100.757 ms

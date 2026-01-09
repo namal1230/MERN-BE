@@ -434,18 +434,9 @@ export const rejectPhost = async (req: Request, res: Response) => {
   }
 
   try {
-    const reported = await Report.findById(id);
-    if (!reported) {
-      return res.status(404).json({ message: "Reported phost not found" });
-    }
-
-    const phostId = reported.phostId;
-    if (!mongoose.Types.ObjectId.isValid(phostId)) {
-      return res.status(400).json({ message: "Invalid phost id in report" });
-    }
 
     const phost = await Phosts.findByIdAndUpdate(
-      phostId,
+      id,
       { status: "archived" },
       { new: true }
     );
@@ -460,16 +451,6 @@ export const rejectPhost = async (req: Request, res: Response) => {
 
     if (email && description) {
       await sendLoginEmails({ email, description, status });
-    }
-
-    const reporteds = await Report.findByIdAndUpdate(
-      id,
-      { status: false },
-      { new: true }
-    );
-
-    if (!reporteds) {
-      return res.status(404).json({ message: "Reported phost not found" });
     }
 
     res.status(200).json({
