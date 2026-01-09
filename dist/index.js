@@ -22,7 +22,7 @@ app.use((0, cookie_parser_1.default)());
 const PORT = Number(process.env.PORT) || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 app.use((0, cors_1.default)({
-    origin: ["https://smart-blog-dev.vercel.app", "http://localhost:5173"],
+    origin: "https://smart-blog-dev.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,

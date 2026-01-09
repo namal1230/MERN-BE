@@ -22,7 +22,7 @@ const MONGO_URI = process.env.MONGO_URI || "";
 
 
 app.use(cors({
-    origin:["https://smart-blog-dev.vercel.app","http://localhost:5173"],
+    origin:"https://smart-blog-dev.vercel.app",
     methods:["GET","POST","PUT","DELETE","PATCH","OPTIONS"],
     allowedHeaders:["Content-Type","Authorization"],
     credentials:true,

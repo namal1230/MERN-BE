@@ -1300,3 +1300,13 @@ GET /phosts/draft-phost?name=Dilmith%20Qwe&email=dilmithqwe@gmail.com&status=pub
 GET /phosts/draft-phost?name=Dilmith%20Qwe&email=dilmithqwe@gmail.com&status=unlisted 304 - - 82.412 ms
 GET /phosts/draft-phost?name=Dilmith%20Qwe&email=dilmithqwe@gmail.com&status=published 304 - - 123.139 ms
 GET /phosts/draft-phost?name=Dilmith%20Qwe&email=dilmithqwe@gmail.com&status=unlisted 200 265 - 90.063 ms
+GET /phosts/published-phost?limit=10&userEmail=prowaddosinhalatutorial@gmail.com 401 28 - 6.521 ms
+GET /phosts/get-notification?username=Pro%20Waddo%20-%20Sinhala%20Tutorial 401 28 - 19.508 ms
+GET /phosts/published-phost?limit=10&userEmail=prowaddosinhalatutorial@gmail.com 200 232 - 96.096 ms
+GET /phosts/get-notification?username=Pro%20Waddo%20-%20Sinhala%20Tutorial 404 42 - 114.670 ms
+GET /phosts/published-phost?limit=10&lastId=6960f9d4dc2c7c33e179d401&userEmail=prowaddosinhalatutorial@gmail.com 200 54 - 98.136 ms
+GET /phosts/get-notification?username=Pro%20Waddo%20-%20Sinhala%20Tutorial 401 28 - 6.590 ms
+GET /phosts/published-phost?limit=10&userEmail=prowaddosinhalatutorial@gmail.com 401 28 - 11.516 ms
+GET /phosts/get-notification?username=Pro%20Waddo%20-%20Sinhala%20Tutorial 404 42 - 85.102 ms
+GET /phosts/published-phost?limit=10&userEmail=prowaddosinhalatutorial@gmail.com 304 - - 91.066 ms
+GET /phosts/published-phost?limit=10&lastId=6960f9d4dc2c7c33e179d401&userEmail=prowaddosinhalatutorial@gmail.com 304 - - 92.003 ms
