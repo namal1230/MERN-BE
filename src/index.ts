@@ -5,7 +5,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import customerRouter from "./routes/Customer";
 import phostsRouter from "./routes/Phosts";
-import emailRouter from "./routes/EmailRouter";
+import emailRouter from "./routes/EmailRouter"; 
 import uploadRouter from "./routes/Upload";
 import imageRoutes from "./routes/Unspalsh";
 import adminRouter from "./routes/Admin";
@@ -53,6 +53,6 @@ app.use("/api/images", imageRoutes);
 
 app.use(ErrorHandling);
 
-app.listen(PORT,()=>{
+app.listen(PORT,"0.0.0.0",()=>{
     console.log(`Listening in port ${PORT}`)
 })
