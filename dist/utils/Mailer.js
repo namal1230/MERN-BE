@@ -9,7 +9,7 @@ let transporter;
 const initMailer = async () => {
     try {
         transporter = nodemailer_1.default.createTransport({
-            host: "smtp.gmail.com",
+            host: process.env.EMAIL_HOST,
             port: 587,
             secure: false,
             auth: {
