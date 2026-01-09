@@ -1678,3 +1678,11 @@ GET /customer/verify-refresh-token 200 956 - 55.316 ms
 GET /customer/refresh-token 200 313 - 84.999 ms
 GET /customer/get-name-info?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 200 445 - 94.197 ms
 GET /customer/follow-user-count?name=Pro%20Waddo%20-%20Sinhala%20Tutorial 200 53 - 172.425 ms
+GET /customer/verify-refresh-token 403 28 - 137.162 ms
+GET /customer/verify-refresh-token 403 28 - 69.088 ms
+GET /customer/verify-refresh-token 403 28 - 89.313 ms
+GET /customer/verify-refresh-token 403 28 - 97.514 ms
+POST /customer/login-customer 200 942 - 186.897 ms
+GET /customer/verify-refresh-token 401 30 - 0.523 ms
+POST /customer/login-customer 200 942 - 156.400 ms
+POST /customer/login-customer 200 942 - 189.878 ms

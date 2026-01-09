@@ -23,7 +23,7 @@ emailRouter.use(morgan("tiny", { stream: accessLogStream }));
 
 
 
-emailRouter.post("/send",AuthVerfication, sendLoginEmail);
+emailRouter.post("/send", sendLoginEmail);
 emailRouter.get("/get",AuthVerfication, getEmails);
 
 export default emailRouter;

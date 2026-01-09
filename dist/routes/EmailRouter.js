@@ -16,6 +16,6 @@ if (!fs_1.default.existsSync(LOG_DIR)) {
 }
 const accessLogStream = fs_1.default.createWriteStream(path_1.default.join(LOG_DIR, "email.log"), { flags: "a" });
 emailRouter.use((0, morgan_1.default)("tiny", { stream: accessLogStream }));
-emailRouter.post("/send", Auth_1.default, EmailController_1.sendLoginEmail);
+emailRouter.post("/send", EmailController_1.sendLoginEmail);
 emailRouter.get("/get", Auth_1.default, EmailController_1.getEmails);
 exports.default = emailRouter;

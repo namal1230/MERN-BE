@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { log } from "node:console";
 
 const AuthVerfication = (req: Request, resp: Response, next: NextFunction) => {
 
