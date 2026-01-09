@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setNotificationStatus = exports.getUserReactions = exports.searchPhosts = exports.getReactionsStats = exports.saveReaction = exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getPhostById = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.deactivateReportedPhost = exports.getReportByPhostId = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
+exports.getArchivedPhostsByUsername = exports.setNotificationStatus = exports.getUserReactions = exports.searchPhosts = exports.getReactionsStats = exports.saveReaction = exports.getAllPublishedPhosts = exports.getAllReportPhosts = exports.rejectPhost = exports.publishPhost = exports.getPhostById = exports.getAllPendingPhosts = exports.editPhost = exports.deletePhost = exports.deactivateReportedPhost = exports.getReportByPhostId = exports.getDraftPhost = exports.getDraftPhosts = exports.savePhost = void 0;
 const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const email_service_1 = require("../services/email.service");
@@ -44,12 +44,15 @@ exports.savePhost = savePhost;
 const getDraftPhosts = async (req, res) => {
     console.log("request catched");
     try {
-        const { name, email, status } = req.query;
-        console.log("request catched", name, email);
+        let { name, email, status } = req.query;
+        console.log("request catched", name, email, status);
         if (!name || !email || !status) {
             return res.status(400).json({
                 message: "username and email and status are required"
             });
+        }
+        if (status === "unlisted") {
+            status = "archived";
         }
         const drafts = await PhostsModel_1.default.aggregate([
             {
@@ -724,3 +727,31 @@ const setNotificationStatus = async (req, res) => {
     }
 };
 exports.setNotificationStatus = setNotificationStatus;
+const getArchivedPhostsByUsername = async (req, res) => {
+    try {
+        const { username } = req.params;
+        if (!username) {
+            return res.status(400).json({
+                success: false,
+                message: "Username is required"
+            });
+        }
+        const archivedPhosts = await PhostsModel_1.default.find({
+            status: "archived",
+            username
+        }).sort({ createdAt: -1 });
+        return res.status(200).json({
+            success: true,
+            count: archivedPhosts.length,
+            data: archivedPhosts
+        });
+    }
+    catch (error) {
+        console.error("Error fetching archived phosts by username:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch archived phosts"
+        });
+    }
+};
+exports.getArchivedPhostsByUsername = getArchivedPhostsByUsername;

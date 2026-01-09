@@ -1,5 +1,5 @@
 import express from "express";
-import {getPhostById,deactivateReportedPhost, getReportByPhostId,setNotificationStatus,getUserReactions,searchPhosts,getReactionsStats,saveReaction,getAllPublishedPhosts,savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
+import {getArchivedPhostsByUsername,getPhostById,deactivateReportedPhost, getReportByPhostId,setNotificationStatus,getUserReactions,searchPhosts,getReactionsStats,saveReaction,getAllPublishedPhosts,savePhost,getDraftPhosts, getDraftPhost,deletePhost,editPhost,getAllPendingPhosts,publishPhost,rejectPhost, getAllReportPhosts } from "../controllers/PhostsController";
 import { downloadPostPDF } from "../controllers/PDFController";
 import { reportPhost,getReportedPhostById } from "../controllers/ReportPhostController";
 import fs from "fs";
@@ -45,5 +45,6 @@ phostsRouter.post("/find-phost",AuthVerfication,searchPhosts)
 phostsRouter.get("/get-notification",AuthVerfication,getUserReactions)
 phostsRouter.get("/set-notification",AuthVerfication,setNotificationStatus)
 phostsRouter.get("/get-report-email",AuthVerfication,getReportedPhostById)
+phostsRouter.get("/get-archived-phost",AuthVerfication,getArchivedPhostsByUsername)
 
 export default phostsRouter;

@@ -39,4 +39,5 @@ phostsRouter.post("/find-phost", Auth_1.default, PhostsController_1.searchPhosts
 phostsRouter.get("/get-notification", Auth_1.default, PhostsController_1.getUserReactions);
 phostsRouter.get("/set-notification", Auth_1.default, PhostsController_1.setNotificationStatus);
 phostsRouter.get("/get-report-email", Auth_1.default, ReportPhostController_1.getReportedPhostById);
+phostsRouter.get("/get-archived-phost", Auth_1.default, PhostsController_1.getArchivedPhostsByUsername);
 exports.default = phostsRouter;

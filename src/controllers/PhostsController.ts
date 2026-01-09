@@ -53,14 +53,17 @@ export const savePhost = async (req: Request, res: Response) => {
 export const getDraftPhosts = async (req: Request, res: Response) => {
   console.log("request catched");
   try {
-    const { name, email, status } = req.query;
-    console.log("request catched", name, email);
+    let { name, email, status } = req.query;
+    console.log("request catched", name, email,status);
     if (!name || !email || !status) {
       return res.status(400).json({
         message: "username and email and status are required"
       });
     }
 
+    if(status === "unlisted"){
+      status="archived";
+    }
     const drafts = await Phosts.aggregate([
       {
         $match: {
@@ -854,3 +857,36 @@ export const setNotificationStatus = async (req: Request, res: Response) => {
     });
   }
 }
+
+export const getArchivedPhostsByUsername = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required"
+      });
+    }
+
+    const archivedPhosts = await Phosts.find({
+      status: "archived",
+      username
+    }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: archivedPhosts.length,
+      data: archivedPhosts
+    });
+  } catch (error) {
+    console.error("Error fetching archived phosts by username:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch archived phosts"
+    });
+  }
+};
