@@ -29,7 +29,7 @@ export const sendMail = async (
   const mailer = await getTransporter();
 
   return mailer.sendMail({
-    from: "Smart Blog Phost <no-reply@yourdomain.com>",
+    from: "namaldilmith2@gmail.com",
     to,
     subject,
     text,
