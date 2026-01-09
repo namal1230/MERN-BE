@@ -9,12 +9,12 @@ let transporter;
 const initMailer = async () => {
     try {
         transporter = nodemailer_1.default.createTransport({
-            host: process.env.EMAIL_HOST,
+            host: "smtp.gmail.com",
             port: 587,
             secure: false,
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+                user: "namaldilmith2@gmail.com",
+                pass: "dwgceokezsfuaath",
             },
         });
         await transporter.verify();

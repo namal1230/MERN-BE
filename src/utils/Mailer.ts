@@ -6,7 +6,7 @@ const initMailer = async () => {
   try {
     transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: 587,
+      port: Number(process.env.EMAIL_PORT),
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
@@ -15,12 +15,12 @@ const initMailer = async () => {
     });
     await transporter.verify();
     console.log("Gmail transporter ready");
+
+    return transporter;
   } catch (err) {
     console.error("Error in nodemailer:", err);
   }
 };
-
-initMailer();
 
 export const sendMail = async (to: string, subject: string, text: string, html?: string) => {
   try {
@@ -28,8 +28,14 @@ export const sendMail = async (to: string, subject: string, text: string, html?:
       throw new Error("Transporter not initialized yet");
     }
 
-    const info = await transporter.sendMail({
-      from: "Smart Blog Phost",
+    const mailer = await initMailer();
+
+    if(!mailer===undefined){
+      
+    }
+
+    const info = await mailer?.sendMail({
+      from: `"Smart Blog Phost" ${process.env.EMAIL_USER}`,
       to,
       subject,
       text,
