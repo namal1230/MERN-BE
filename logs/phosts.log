@@ -1184,3 +1184,7 @@ GET /phosts/get-all-pending 200 36 - 86.200 ms
 GET /phosts/get-all-report 200 612 - 147.561 ms
 GET /phosts/get-all-pending 304 - - 108.190 ms
 GET /phosts/get-report-email?id=6954c677d5ee55bfbc755de1 200 363 - 112.362 ms
+GET /phosts/get-all-pending 200 298 - 144.761 ms
+GET /phosts/get-phost?id=6960c3021c09412fc6b5f4bb 200 286 - 100.013 ms
+GET /phosts/get-phost?id=6960c3021c09412fc6b5f4bb 304 - - 93.749 ms
+GET /phosts/get-phost?id=6960c3021c09412fc6b5f4bb 304 - - 80.967 ms

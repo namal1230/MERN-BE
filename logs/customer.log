@@ -1686,3 +1686,13 @@ POST /customer/login-customer 200 942 - 186.897 ms
 GET /customer/verify-refresh-token 401 30 - 0.523 ms
 POST /customer/login-customer 200 942 - 156.400 ms
 POST /customer/login-customer 200 942 - 189.878 ms
+GET /customer/verify-refresh-token 403 28 - 602.343 ms
+GET /customer/verify-refresh-token 403 28 - 68.389 ms
+GET /customer/verify-refresh-token 403 28 - 86.535 ms
+POST /customer/login-customer 200 942 - 327.616 ms
+POST /customer/login-customer 200 942 - 146.449 ms
+GET /customer/verify-refresh-token 200 956 - 140.013 ms
+GET /customer/verify-refresh-token 304 - - 74.724 ms
+GET /customer/verify-refresh-token 200 956 - 78.966 ms
+POST /customer/login-customer 200 942 - 158.460 ms
+GET /customer/refresh-token 200 313 - 108.982 ms
