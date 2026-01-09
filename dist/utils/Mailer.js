@@ -13,8 +13,8 @@ const initMailer = async () => {
             port: 587,
             secure: false,
             auth: {
-                user: "namaldilmith2@gmail.com",
-                pass: "dwgceokezsfuaath",
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
             },
         });
         await transporter.verify();
