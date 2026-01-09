@@ -9,7 +9,10 @@ const PhostsModel_1 = __importDefault(require("../models/PhostsModel"));
 const downloadPostPDF = async (req, res) => {
     const id = req.query.id;
     const post = await PhostsModel_1.default.findById(id);
-    const browser = await puppeteer_1.default.launch();
+    const browser = await puppeteer_1.default.launch({
+        headless: "new",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    });
     const page = await browser.newPage();
     if (!post) {
         return res.status(404).json({ message: "Post not found" });

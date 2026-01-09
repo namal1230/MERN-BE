@@ -1,43 +1,46 @@
 import puppeteer from "puppeteer";
 import Post from "../models/PhostsModel";
-import {Request,Response} from "express"
+import { Request, Response } from "express"
 
-export const downloadPostPDF = async (req:Request, res:Response) => {
+export const downloadPostPDF = async (req: Request, res: Response) => {
   const id = req.query.id;
   const post = await Post.findById(id);
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
   const page = await browser.newPage();
 
   if (!post) {
-  return res.status(404).json({ message: "Post not found" });
-}
+    return res.status(404).json({ message: "Post not found" });
+  }
 
 
   const bodyHTML = post.body
-  .map((block) => {
-    switch (block.type) {
-      case "TEXT":
-        return `<p>${block.value}</p>`;
+    .map((block) => {
+      switch (block.type) {
+        case "TEXT":
+          return `<p>${block.value}</p>`;
 
-      case "IMG":
-        return `<img src="${block.value}" style="max-width:100%" />`;
+        case "IMG":
+          return `<img src="${block.value}" style="max-width:100%" />`;
 
-      case "CODE":
-        return `
+        case "CODE":
+          return `
           <pre>
             <code>${block.value}</code>
           </pre>
         `;
 
-      case "VIDEO":
-        return `<p>[Video content]</p>`;
+        case "VIDEO":
+          return `<p>[Video content]</p>`;
 
-      default:
-        return "";
-    }
-  })
-  .join("");
+        default:
+          return "";
+      }
+    })
+    .join("");
 
 
   const html = `
@@ -66,9 +69,9 @@ export const downloadPostPDF = async (req:Request, res:Response) => {
 
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
-  "Content-Disposition",
-  `attachment; filename="${encodeURIComponent(post.title)}.pdf"`
-);
+    "Content-Disposition",
+    `attachment; filename="${encodeURIComponent(post.title)}.pdf"`
+  );
 
   res.send(pdfBuffer);
 };
