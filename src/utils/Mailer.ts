@@ -1,24 +1,5 @@
-import nodemailer from "nodemailer";
+import sgMail, { MailDataRequired } from "@sendgrid/mail";
 
-let transporter: nodemailer.Transporter | null = null;
-
-const getTransporter = async () => {
-  if (transporter) return transporter;
-
-  transporter = nodemailer.createTransport({
-    host: "smtp.sendgrid.net",
-    port: 587,
-    auth: {
-      user: "apikey",
-      pass: process.env.SENDGRID_API_KEY,
-    },
-  });
-
-  await transporter.verify();
-  console.log("SendGrid transporter ready");
-
-  return transporter;
-};
 
 export const sendMail = async (
   to: string,
@@ -26,13 +7,29 @@ export const sendMail = async (
   text: string,
   html?: string
 ) => {
-  const mailer = await getTransporter();
+  if (!process.env.SENDGRID_API_KEY) {
+    throw new Error("SENDGRID_API_KEY is missing");
+  }
 
-  return mailer.sendMail({
-    from: "namaldilmith2@gmail.com",
-    to,
-    subject,
-    text,
-    html,
-  });
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  try {
+    const msg: MailDataRequired = {
+      to,
+      from: {
+        email: "namaldilmith2@gmail.com",
+        name: "Smart Blog Phost",
+      },
+      subject,
+      text,
+      html: html || "",
+    };
+
+    await sgMail.send(msg);
+    console.log("Email sent via SendGrid API");
+
+  } catch (error: any) {
+    console.error("SendGrid API error:", error.response?.body || error);
+    throw error;
+  }
 };
