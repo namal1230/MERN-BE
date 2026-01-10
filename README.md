@@ -1,156 +1,107 @@
-🚀 MERN Full-Stack Application
+Smart Blog Backend (Express API)
+-------------------------------------------------------------------------------------------------------------------------------------------
+Live API: https://mern-be-production.up.railway.app
 
-A full-stack web application built using the MERN stack (MongoDB, Express.js, React, Node.js) with modern best practices, secure authentication, and a scalable architecture.
+A powerful backend for Smart Blog for Developers, built with Express.js and MongoDB Atlas. This API handles authentication, file storage, PDF generation, logging, and more, providing a robust backend for modern web applications.
 
-📌 Features
+Table of Contents
+-------------------------------------------------------------------------------------------------------------------------------------------
+Features
 
-🔐 Authentication & Authorization (JWT / Refresh Token)
+Technologies Used
 
-👥 Role-based access (User / Admin)
+Security
 
-📝 CRUD operations
+Database
 
-📦 RESTful API
+Setup & Installation
 
-⚡ Responsive UI (Material UI / Tailwind / CSS)
+Deployment
 
-🔄 Persistent login
+Features
+-------------------------------------------------------------------------------------------------------------------------------------------
+PDF Generation with Puppeteer
 
-🛡 Secure API routes
+Convert content into formatted PDF files.
 
-📊 Clean and scalable project structure
+Download generated PDFs easily.
 
-🛠 Tech Stack
-Frontend
+Cloudinary Integration
 
-React
+Upload and store images and videos securely in the cloud.
 
-TypeScript / JavaScript
+Logging
 
-React Router
+Automatic logging of requests and actions using Morgan.
 
-Context API
+Authentication & Security
 
-Material UI / Tailwind CSS
+Secure user authentication using JWT and bcrypt.
 
-Axios
+CORS Policy
 
-Backend
+Handles cross-origin requests securely.
 
-Node.js
+Technologies Used
+-------------------------------------------------------------------------------------------------------------------------------------------
+Backend Framework: Express.js
 
-Express.js
+Database: MongoDB Atlas
 
-MongoDB
+Authentication & Security: JSON Web Tokens, bcrypt, CORS
 
-Mongoose
+File Handling & Storage: Multer, Cloudinary
 
-JWT Authentication
+PDF Generation: Puppeteer
 
-Cookie-based Refresh Tokens
+Middleware & Utilities: morgan, body-parser, cookie-parser, dotenv
 
-📂 Project Structure
-mern-project/
-│
-├── client/                 # Frontend (React)
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   └── routes/
-│   └── package.json
-│
-├── server/                 # Backend (Node + Express)
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── middleware/
-│   ├── config/
-│   └── package.json
-│
-└── README.md
+Deployment: Railway
 
-⚙️ Installation & Setup
-1️⃣ Clone the repository
-git clone https://github.com/your-username/your-repo-name.git
+Security
+-------------------------------------------------------------------------------------------------------------------------------------------
+JWT – Protects routes and ensures secure user authentication.
 
-2️⃣ Install dependencies
-Backend
-cd server
+bcrypt – Hashes passwords before storing them in the database.
+
+CORS Policy – Restricts unauthorized cross-origin requests.
+
+Database
+-------------------------------------------------------------------------------------------------------------------------------------------
+MongoDB Atlas – Cloud-hosted MongoDB for scalable and secure data storage.
+
+Setup & Installation
+-------------------------------------------------------------------------------------------------------------------------------------------
+Clone the repository:
+
+git clone <repo-url>
+cd smart-blog-backend
+
+
+Install dependencies:
+
 npm install
 
-Frontend
-cd client
-npm install
 
-🔑 Environment Variables
-
-Create a .env file inside the server folder:
+Create a .env file and configure:
 
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
-ACCESS_TOKEN_SECRET=your_access_token_secret
-REFRESH_TOKEN_SECRET=your_refresh_token_secret
-CLIENT_URL=http://localhost:3000
+MONGO_URI=<your-mongodb-atlas-uri>
+JWT_SECRET=<your-secret-key>
+CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+CLOUDINARY_API_KEY=<your-api-key>
+CLOUDINARY_API_SECRET=<your-api-secret>
 
-▶️ Run the Application
-Start Backend
-cd server
+
+Start the development server:
+
 npm run dev
 
-Start Frontend
-cd client
-npm start
+Deployment
+-------------------------------------------------------------------------------------------------------------------------------------------
+The backend API is deployed on Railway:
+https://mern-be-production.up.railway.app
 
-
-Frontend runs on:
-👉 http://localhost:3000
-
-Backend runs on:
-👉 http://localhost:5000
-
-🔐 Authentication Flow
-
-User logs in
-
-Access Token returned
-
-Refresh Token stored in HTTP-only cookie
-
-Persistent login using refresh token
-
-Protected routes based on roles
-
-📡 API Endpoints (Example)
-Method	Endpoint	Description
-POST	/api/auth/login	Login user
-POST	/api/auth/register	Register user
-GET	/api/users/me	Get user profile
-POST	/api/auth/refresh	Refresh access token
-POST	/api/auth/logout	Logout user
-🧪 Future Improvements
-
-🔔 Notifications
-
-📸 Image upload (Cloudinary)
-
-📈 Analytics dashboard
-
-🧪 Unit & Integration testing
-
-🌍 Deployment (AWS / Render / Vercel)
-
-👨‍💻 Author
-
-Namal Dilmith
-Software Engineering Student | MERN Stack Developer
-
-GitHub: [your-github-profile]
-
-LinkedIn: [your-linkedin-profile]
-
-⭐ Show Your Support
-
-If you like this project, give it a ⭐ on GitHub!
+License
+-------------------------------------------------------------------------------------------------------------------------------------------
+This project is open-source and available under the MIT License.
