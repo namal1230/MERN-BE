@@ -1,0 +1,59 @@
+import mongoose from "mongoose"
+
+export interface IUser extends mongoose.Document{
+    firebaseUid:string;
+    name:string;
+    email:string;
+    profile?:string;
+    refreshToken:string;
+    role:"user" | "admin";
+    status:"VALID" | "REJECTED" | "Reported";
+}
+
+const UserSchema = new mongoose.Schema<IUser>(
+  {
+    firebaseUid: {
+      type: String,
+      required: true,
+      unique: true
+    },
+
+    name: {
+      type: String,
+      required: true
+    },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+
+    profile: {
+      type: String
+    },
+
+    refreshToken: {
+      type: String
+    },
+
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+
+    status: {
+      type: String,
+      enum: ["VALID", "REJECTED", "Reported"],
+      default: "VALID"
+    }
+  },
+  { timestamps: true }
+);
+
+
+const Users = mongoose.model<IUser>("User",UserSchema)
+export default Users;
