@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-phost-be
+  labels:
+    app: blog-phost-be
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog-phost-be
+  template:
+    metadata:
+      labels:
+        app: blog-phost-be
+    spec:
+      containers:
+        - name: blog-phost-be
+          image: namaldil/saas-backend:latest
+          imagePullPolicy: IfNotPresent
+          workingDir: /app
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3000"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: MONGO_URI
+                  optional: true
+            - name: SECRET_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: SECRET_CODE
+                  optional: true
+            - name: REFRESH_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: REFRESH_CODE
+                  optional: true
+            - name: SENDGRID_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: SENDGRID_API_KEY
+                  optional: true
+            - name: CLOUD_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: CLOUD_NAME
+                  optional: true
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: API_KEY
+                  optional: true
+            - name: API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: API_SECRET
+                  optional: true
+            - name: UNSPLASH_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: UNSPLASH_ACCESS_KEY
+                  optional: true
+            - name: VOYAGEAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: VOYAGEAI_API_KEY
+                  optional: true
+            - name: HF_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: blog-phost-be-secrets
+                  key: HF_API_KEY
+                  optional: true
+          volumeMounts:
+            - name: app-logs
+              mountPath: /app/logs
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: app-logs
+          emptyDir: {}

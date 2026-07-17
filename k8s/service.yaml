@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blog-phost-be
+  labels:
+    app: blog-phost-be
+spec:
+  selector:
+    app: blog-phost-be
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000
+  type: NodePort
