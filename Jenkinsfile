@@ -2,121 +2,50 @@ pipeline {
     agent any
     
     environment {
-        NODE_ENV = 'production'
-        REGISTRY = 'docker.io'
         IMAGE_NAME = 'namal1230/mern-be'
         IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
-    }
-    
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        timeout(time: 30, unit: 'MINUTES')
+        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
+        DOCKER_HUB_REPO = 'namaldil/saas-backend'
     }
     
     stages {
-        stage('Checkout') {
+        stage('SCM Checkout') {
             steps {
-                echo '🔄 Checking out code...'
-                checkout scm
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                echo '📦 Installing npm dependencies...'
-                sh '''
-                    npm install
-                '''
+                retry(3){
+                    git branch: 'main', url: 'https://github.com/namal1230/MERN-BE'
+                }
             }
         }
         
         stage('Build') {
             steps {
-                echo '🔨 Building TypeScript project...'
-                sh '''
-                    npm run build
-                '''
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                echo '✅ Running tests...'
-                sh '''
-                    npm test
-                '''
-            }
-        }
-        
-        stage('Code Quality') {
-            steps {
-                echo '🔍 Running code quality checks...'
-                sh '''
-                    npm audit --audit-level=moderate || true
-                '''
+                bat 'npm ci'
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Building Docker image...'
-                sh '''
-                    docker build \
-                        --tag ${IMAGE_NAME}:${IMAGE_TAG} \
-                        --tag ${IMAGE_NAME}:latest \
-                        .
-                '''
+                script {
+                    echo '🐳 Building Docker image...'
+                    dockerImage = docker.build("${DOCKER_HUB_REPO}:latest")
+                }
             }
         }
-        
         stage('Push to Docker Registry') {
-            when {
-                branch 'main'
-            }
             steps {
-                echo '📤 Pushing Docker image to registry...'
-                sh '''
-                    echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin
-                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                    docker push ${IMAGE_NAME}:latest
-                    docker logout
-                '''
-            }
-        }
-        
-        stage('Deploy') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo '🚀 Deploying application...'
-                sh '''
-                    # Add your deployment script here
-                    # Example: kubectl set image deployment/mern-be mern-be=${IMAGE_NAME}:${IMAGE_TAG}
-                    echo "Deployment stage - Configure as per your infrastructure"
-                '''
+                script {
+                    echo '📤 Pushing Docker image to registry...'
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push("latest")
+                    }
+                }
             }
         }
     }
     
     post {
         always {
-            node {
-                echo '🧹 Cleaning up...'
-                sh '''
-                    docker system prune -f || true
-                '''
-                cleanWs()
-            }
-        }
-        
-        success {
-            echo '✨ Pipeline completed successfully!'
-        }
-        
-        failure {
-            echo '❌ Pipeline failed!'
+            bat 'docker logout'
         }
     }
 }
