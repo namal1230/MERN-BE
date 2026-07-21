@@ -1,5 +1,6 @@
 import Users from "../models/CustomerModel"
 import { Request, Response } from "express"
+import mongoose from "mongoose"
 import Phosts from "../models/PhostsModel"
 import Email from "../models/EmailModel"
 import { sendLoginResponse, sendRejectedAccount } from "../services/email.service"
@@ -149,15 +150,18 @@ export const getReportedUsers = async (req: Request, res: Response) => {
 
 export const rejectUserByName = async (req: Request, res: Response) => {
   try {
-    const { name,reportId } = req.query;
+    const rawName = req.query.name;
+    const rawReportId = req.query.reportId;
 
-    if (!name || typeof name !== "string") {
+    const name = typeof rawName === "string" ? rawName : undefined;
+    const reportId = typeof rawReportId === "string" ? rawReportId : undefined;
+
+    if (!name) {
       return res.status(400).json({ message: "Name is required and must be a string" });
     }
 
-
     const user = await Users.findOneAndUpdate(
-      { name: name },
+      { name },
       { $set: { status: "REJECTED" } },
       { new: true }
     );
@@ -166,20 +170,26 @@ export const rejectUserByName = async (req: Request, res: Response) => {
       return res.status(404).json({ message: `User with name "${name}" not found` });
     }
 
-     if (!reportId) {
+    if (!reportId) {
       return res.status(400).json({ message: "Report ID is required" });
     }
 
+    let reportObjectId: mongoose.Types.ObjectId;
+    try {
+      reportObjectId = new mongoose.Types.ObjectId(reportId);
+    } catch {
+      return res.status(400).json({ message: "Report ID is invalid" });
+    }
+
     const updatedReport = await Report.findOneAndUpdate(
-      { _id: reportId },
+      { _id: reportObjectId },
       { $set: { status: false } },
       { new: true }
     );
 
-     if (!updatedReport) {
+    if (!updatedReport) {
       return res.status(404).json({ message: "Report not found" });
     }
-
 
     await sendRejectedAccount({ email: user.email, description:`Your Account Has Been Restricted BY ADMIN \n Date: ${new Date().getDate()}` });
 

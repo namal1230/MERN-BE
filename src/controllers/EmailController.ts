@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Email from "../models/EmailModel";
+import Email, { IEmail } from "../models/EmailModel";
 import { sendLoginEmails } from "../services/email.service";
 
 export const sendLoginEmail = async (req: Request, res: Response) => {
@@ -29,16 +29,27 @@ export const sendLoginEmail = async (req: Request, res: Response) => {
 };
 
 export const getEmails = async (req: Request, res: Response) => {
-  const { status } = req.query;
+  const rawStatus = req.query.status;
 
-  if (!status || typeof status !== "string") {
+  if (typeof rawStatus !== "string") {
     return res.status(400).json({ message: "status query is required" });
   }
 
+  const allowedSources: IEmail["source"][] = [
+    "login-issue",
+    "phost-upload",
+    "report-user",
+    "report-phost",
+  ];
+
+  if (!allowedSources.includes(rawStatus as IEmail["source"])) {
+    return res.status(400).json({ message: "Invalid email source" });
+  }
+
   try {
-    const emails = await Email.find({ 
-      source: status,
-      status: true 
+    const emails = await Email.find({
+      source: rawStatus as IEmail["source"],
+      status: true,
     }).sort({ createdAt: -1 });
 
     res.status(200).json(emails);

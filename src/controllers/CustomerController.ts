@@ -229,7 +229,8 @@ export const getFollowersCountByName = async (req: Request, res: Response) => {
 
 export const getFollowingPhosts = async (req: Request, res: Response) => {
   try {
-    const { currentUser } = req.query;
+    const rawCurrentUser = req.query.currentUser;
+    const currentUser = typeof rawCurrentUser === "string" ? rawCurrentUser : undefined;
 
     if (!currentUser) {
       return res.status(400).json({ message: "currentUser is required" });
